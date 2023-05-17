@@ -1,61 +1,69 @@
 CREATE TABLE IF NOT EXISTS User (
-	User_id INT PRIMARY KEY AUTO_INCREMENT,
+	User_id INT AUTO_INCREMENT,
     Username VARCHAR(20) NOT NULL,
-    Password VARCHAR(20),
-    Name VARCHAR(30),
-    Usertype VARCHAR(10)
+    Password VARCHAR(20) NOT NULL,
+    Name VARCHAR(30) NOT NULL,
+    Usertype ENUM("Admin", "Librarian", "Student", "Teacher") NOT NULL,
+    PRIMARY KEY(User_id)
 );
 
 CREATE TABLE IF NOT EXISTS School (
-    School_id INT PRIMARY KEY AUTO_INCREMENT,
+    School_id INT AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
     Address VARCHAR(100) NOT NULL,
-    City VARCHAR(50) NOT NULL,
+    City VARCHAR(20) NOT NULL,
     Phone VARCHAR(10) NOT NULL,
-    Email VARCHAR(50) NOT NULL,
+    Email VARCHAR(30) NOT NULL,
     Head_id INT NOT NULL,
     Library_op_id INT NOT NULL,
+    PRIMARY KEY(School_id),
     FOREIGN KEY(Head_id) REFERENCES User(User_id),
-    FOREIGN KEY(Library_op_id) REFERENCES User(User_id)
+    FOREIGN KEY(Library_op_id) REFERENCES User(User_id),
+    CHECK(Email REGEXP ".+@.+(\.com|\.gr)$")
 );
 
--- index?
 CREATE TABLE IF NOT EXISTS Book (
-	Book_id INT PRIMARY KEY AUTO_INCREMENT,
-    Title VARCHAR(100),
-    Publisher VARCHAR(50),
-    ISBN INT,
-    Author VARCHAR(50),
-    Pages INT,
-    Summary VARCHAR(100),
-    Copies INT,
-    Image VARCHAR(20),
+	Book_id INT AUTO_INCREMENT,
+    Title VARCHAR(80) NOT NULL,
+    Publisher VARCHAR(30) NOT NULL,
+    ISBN INT(13) NOT NULL,
+    Author VARCHAR(50) NOT NULL,
+    Pages INT(4),
+    Summary TEXT(1000),
+    Copies INT(2) NOT NULL,
+    Image MEDIUMBLOB,
     Category VARCHAR(10),
     Language VARCHAR(2),
-    Keywords VARCHAR(10)
+    Keywords VARCHAR(10),
+    PRIMARY KEY(Book_id),
+    CHECK(PAGES BETWEEN 1 AND 9999),
+    CHECK(COPIES BETWEEN 1 AND 99)
 );
+
+CREATE INDEX IF NOT EXISTS booksearch_idx
+ON Book(Title, Author, Publisher, ISBN);
 
 CREATE TABLE IF NOT EXISTS Loan (
 	Loan_id INT,
+    Date_out DATE NOT NULL,
+    Due_date DATE NOT NULL,
+    Return_date DATE NOT NULL,
+    Status ENUM("BORROWED", "ON HOLD", "RETURNED", "LATE"),
     Book_id INT,
     User_id INT,
-    DateOut DATE,
-    DueDate DATE,
-    ReturnDate DATE,
-    Status ENUM("BORROWED", "FREE"),
     PRIMARY KEY(Loan_id, Book_id, User_id),
-	FOREIGN KEY(Book_id) REFERENCES Book(Book_id),
-    FOREIGN KEY(User_id) REFERENCES User(User_id)
+	FOREIGN KEY(Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Review (
 	Review_id INT,
-	Book_id INT,
-    Rating INT,
+    Rating TINYINT(1) NOT NULL,
     Review VARCHAR(200),
-    CHECK (Rating BETWEEN 1 AND 5),
-    PRIMARY KEY(Review_id),
-    FOREIGN KEY(Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE
+    Book_id INT NOT NULL,
+    User_id INT NULL, -- this means "nullable", not null by default + (it can't be part of PK)
+    PRIMARY KEY(Review_id, Book_id),
+    FOREIGN KEY(Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE SET NULL,
+    CHECK(Rating BETWEEN 1 AND 5)
 );
-
-show tables;
