@@ -1,0 +1,5 @@
+Apo SQL menei to table gia reservations kai ta multivalued attributes
+Kapoia triggers h scheduled events (px diagrafi krathmenou vivliou meta apo
+ebdomada)
+
+na dw pws ginetai backup tis vashs

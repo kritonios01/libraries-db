@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>Please fill in the form below</h2>
+
+    <form action="/addBook" method="POST">
+        <label for="title">Title: </label>
+        <input type="text" name="title">
+        <br>
+        <label for="Publisher">Publisher: </label>
+        <input type="text" name="publisher">
+        <br>
+        <label for="isbn">ISBN: </label>
+        <input type="text" name="isbn">
+        <br>
+        <label for="author">Author: </label> <!-- this must take multiple values -->
+        <input type="text" name="author">
+        <br>
+        <label for="pages">Pages: </label>
+        <input type="text" name="pages">
+        <br>
+        <label for="summary">Summary: </label>
+        <input type="text" name="summary">
+        <br>
+        <label for="copies">Copies available: </label>
+        <input type="text" name="copies">
+        <br>
+        <label for="image">Image: </label>
+        <input type="file" name="image">
+        <br>
+        <label for="category">Category: </label>
+        <input type="text" name="category">
+        <br>
+        <label for="language">Language: </label>
+        <input type="text" name="language">
+        <br>
+        <label for="keywords">Keywords: </label>
+        <input type="text" name="keywords">
+        <br>
+        <input type="submit" value="Submit">
+    </form> 
+  
+    <p>Once you click the submit button, the book will be added to the DB</p>
+
+</body>
+</html>

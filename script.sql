@@ -67,3 +67,9 @@ CREATE TABLE IF NOT EXISTS Review (
     FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE SET NULL,
     CHECK(Rating BETWEEN 1 AND 5)
 );
+
+-- Automatically subtract 1 from copies when a new loan is requested
+CREATE TRIGGER subtract_copies_after_loan
+AFTER INSERT ON Loan FOR EACH ROW
+UPDATE Book
+SET Copies = Copies - 1 WHERE Book_ID = NEW.Book_id;
