@@ -26,19 +26,70 @@ CREATE TABLE IF NOT EXISTS Book (
 	Book_id INT AUTO_INCREMENT,
     Title VARCHAR(80) NOT NULL,
     Publisher VARCHAR(30) NOT NULL,
-    ISBN INT(13) NOT NULL,
-    Author VARCHAR(50) NOT NULL,
+    ISBN VARCHAR(13) NOT NULL,
     Pages INT(4),
-    Summary TEXT(1000),
+    Summary VARCHAR(1000),
     Copies INT(2) NOT NULL,
     Image MEDIUMBLOB,
-    Category VARCHAR(10),
-    Language VARCHAR(2),
-    Keywords VARCHAR(10),
+    Language ENUM ('Greek', 'English', 'French', 'German', 'Russian', 'Spanish', 'Italian', 'Chinese'),
     PRIMARY KEY(Book_id),
     CHECK(PAGES BETWEEN 1 AND 9999),
-    CHECK(COPIES BETWEEN 1 AND 99)
+    CHECK(COPIES BETWEEN 1 AND 99),
+    CHECK(CHAR_LENGTH(ISBN) = 13)
 );
+
+CREATE TABLE IF NOT EXISTS Author (
+    Author_id INT AUTO_INCREMENT,
+    First_name VARCHAR(20) NOT NULL,
+    Last_name VARCHAR(25) NOT NULL,
+    PRIMARY KEY(Author_id)
+)
+
+CREATE TABLE IF NOT EXISTS Book_authors (
+    Book_id INT,
+    Author_id INT,
+    PRIMARY KEY(Book_id, Author_id),
+    FOREIGN KEY Book_id REFERENCES Book(Book_id),
+    FOREIGN KEY Author_id REFERENCES Author(Author_id)
+)
+
+CREATE TABLE IF NOT EXISTS Category (
+    Category_id INT AUTO_INCREMENT,
+    Category ENUM (
+        'Action and Adventure', 'Art', 'Biography', 'Business and Economics', 
+        'Comics and Graphic Novels', 'Computing and Technology', 'Cookbooks and Food', 
+        'Crafts and Hobbies', 'Crime and Mystery', 'Drama', 'Education and Teaching', 
+        'Fantasy', 'Fiction', 'Health and Wellness', 'Historical Fiction', 'History', 
+        'Horror', 'Humor', 'Inspirational and Motivational', 'LGBTQ+', 'Literary Fiction', 
+        'Music', 'Parenting and Family', 'Philosophy', 'Poetry', 'Politics and Social Sciences', 
+        'Religion and Spirituality', 'Romance', 'Science', 'Science Fiction', 
+        'Self-Help and Personal Development', 'Sports', 'Thriller', 'Travel', 
+        'True Crime', 'Western'
+    ) NOT NULL,
+    PRIMARY KEY(Category_id)
+)
+
+CREATE TABLE IF NOT EXISTS Book_categories (
+    Book_id INT,
+    Category_id INT,
+    PRIMARY KEY(Book_id, Category_id),
+    FOREIGN KEY Book_id REFERENCES Book(Book_id),
+    FOREIGN KEY Category_id REFERENCES Category(Category_id)
+)
+
+CREATE TABLE IF NOT EXISTS Keyword (
+    Keyword_id INT AUTO_INCREMENT,
+    Keyword VARCHAR(30) NOT NULL,
+    PRIMARY KEY(Keyword_id)
+)
+
+CREATE TABLE IF NOT EXISTS Book_keywords (
+    Book_id INT,
+    Keyword_id INT,
+    PRIMARY KEY(Book_id, Keyword_id),
+    FOREIGN KEY Book_id REFERENCES Book(Book_id),
+    FOREIGN KEY Keyword_id REFERENCES Keyword(Keyword_id)
+)
 
 CREATE INDEX IF NOT EXISTS booksearch_idx
 ON Book(Title, Author, Publisher, ISBN);

@@ -1,15 +1,20 @@
+const schema = 'school_libraries_db';
+const port = 3000;
+
 //Dependencies
 //const http = require('http');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('mariadb');
-const { type } = require('os');
+let ejs = require('ejs');
+//const { type } = require('os');
 
 //Express init and use bodyParser for post requests
 const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
-const port = 3000;
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
 
 //root_path constant for all later uses
 const root_path = path.resolve(__dirname, '..');
@@ -19,7 +24,7 @@ const pool = db.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'school_libraries_db',
+    database: schema,
     connectionLimit: 1
 });
 
@@ -36,9 +41,10 @@ app.get('/books', async(req,res) => {
     try {
         conn = await pool.getConnection();
         let books = await conn.query("SELECT * FROM Book"); //returns json
-        res.send(books);
+
+        res.render('books', {books:books, total_books:Object.keys(books).length});
     } catch (err) {
-        throw err;
+        console.log('Problem with the DB');
     } finally {
         if (conn) return conn.end(); //this should maybe execute after all queries
     }
@@ -49,34 +55,10 @@ app.get('/addBook', (req,res) => {
 });
 
 app.post('/addBook', async(req,res) => {
-    //res.sendFile(`${root_path}/frontend/addBook.html`); --> go to  success page
-    //console.log(req.body)
-    // let data = {
-    //     title: req.body.title,
-    //     publisher: req.body.publisher,
-    //     isbn: Number(req.body.isbn),
-    //     author: req.body.author,
-    //     pages: Number(req.body.pages),
-    //     summary: req.body.summary,
-    //     copies: Number(req.body.copies),
-    //     image: req.body.image,
-    //     category: req.body.category,
-    //     language: req.body.language,
-    //     keywords: req.body.keywords
-    // };
-
     let data = [
-        req.body.title,
-        req.body.publisher,
-        Number(req.body.isbn),
-        req.body.author,
-        Number(req.body.pages),
-        req.body.summary,
-        Number(req.body.copies),
-        req.body.image,
-        req.body.category,
-        req.body.language,
-        req.body.keywords
+        req.body.title, req.body.publisher, Number(req.body.isbn), req.body.author,
+        Number(req.body.pages), req.body.summary, Number(req.body.copies), req.body.image,
+        req.body.category, req.body.language, req.body.keywords
     ];
     
     let conn;
@@ -88,17 +70,25 @@ app.post('/addBook', async(req,res) => {
         let books = await conn.query(
             "INSERT INTO Book(Title, Publisher, ISBN, Author, Pages, Summary, Copies, Image, Category, Language, Keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             data); //returns json
-        console.log(books);
+        res.redirect('/success');
     } catch (err) {
-        console.log(err);
-
-        throw err;
-        
+        res.redirect('/addBookf');
     } finally {
         if (conn) return conn.end();
     }
 });
 
+app.get('/addBookf', (req,res) => {
+    res.sendFile(`${root_path}/frontend/addBookf.html`);
+});
+
+app.get('/success', (req,res) => {
+    res.sendFile(`${root_path}/frontend/success.html`);
+});
+
+app.get('/signin', (req,res) => {
+    res.sendFile(`${root_path}/frontend/signin.html`);
+});
 
 
 

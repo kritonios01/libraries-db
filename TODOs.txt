@@ -3,3 +3,8 @@ Kapoia triggers h scheduled events (px diagrafi krathmenou vivliou meta apo
 ebdomada)
 
 na dw pws ginetai backup tis vashs
+
+prepei otan einai keno ena attribute na pernaei ws null
+prepei na elegxontai oi periorismoi
+
+dropdowns analoga me ta enums

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books in Library</title>
+</head>
+
+<body>
+    
+</body>
+    <h1>Books available</h1>
+
+    <form action="/" method="GET">
+        <button type="submit"> 
+            Go back
+        </button>
+    </form>
+
+    <ul>
+        <% for(var i=0; i<total_books; i++) { %>
+        <li><%=books[i]['Title']%></li>
+        <% } %>
+    </ul>
+    
+</html>
