@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS Book (
     Summary VARCHAR(1000),
     Copies INT(2) NOT NULL,
     Image MEDIUMBLOB,
-    Language ENUM ('Greek', 'English', 'French', 'German', 'Russian', 'Spanish', 'Italian', 'Chinese'),
+    Language ENUM ('Greek', 'English', 'French', 'German', 'Russian', 'Spanish', 'Italian', 'Chinese') NOT NULL,
     PRIMARY KEY(Book_id),
     CHECK(PAGES BETWEEN 1 AND 9999),
     CHECK(COPIES BETWEEN 1 AND 99),

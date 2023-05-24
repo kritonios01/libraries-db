@@ -4,7 +4,13 @@ ebdomada)
 
 na dw pws ginetai backup tis vashs
 
-prepei otan einai keno ena attribute na pernaei ws null
+prepei otan einai keno ena attribute na pernaei ws null --> pernaei ws empty string
 prepei na elegxontai oi periorismoi
 
 dropdowns analoga me ta enums
+to summary prepei na einai megalo input
+na ginei to frontend tou addbook
+
+na valw boostrap sto home, sta failure kai success pages
+ na dw oti ta required fields sto book table einai swsta sth vash kai sth html
+auto color mode

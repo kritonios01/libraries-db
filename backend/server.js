@@ -2,13 +2,17 @@ const schema = 'school_libraries_db';
 const port = 3000;
 
 //Dependencies
-//const http = require('http');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('mariadb');
-let ejs = require('ejs');
-//const { type } = require('os');
+const ejs = require('ejs');
+const multer = require('multer');
+const fs = require("fs");
+
+//Multer init
+const storage = multer.memoryStorage();
+const upload = multer({storage: storage});
 
 //Express init and use bodyParser for post requests
 const app = express();
@@ -25,42 +29,54 @@ const pool = db.createPool({
     user: 'root',
     password: '',
     database: schema,
-    connectionLimit: 1
+    connectionLimit: 10
 });
 
-app.get('/', (req,res) => {
+app.get('/', (req,res) => { //home route
     res.sendFile(`${root_path}/frontend/index.html`);
 });
-/*
-app.get('/books', (req,res) => {
-    res.sendFile(`${root_path}/frontend/Books.html`);
-});*/
 
-app.get('/books', async(req,res) => {
+app.get('/books', async(req,res) => { //show books 
+    let emptyCover = fs.readFileSync(`${root_path}/backend/public/images/no-book-cover.jpg`);
+
     let conn;
     try {
         conn = await pool.getConnection();
-        let books = await conn.query("SELECT * FROM Book"); //returns json
+        let books = await conn.query("SELECT * FROM Book");
+
+        for (var book of books) {
+            if(book.Image === null) book.Image = emptyCover.toString('base64');
+        }
 
         res.render('books', {books:books, total_books:Object.keys(books).length});
     } catch (err) {
-        console.log('Problem with the DB');
+        console.log('DB Error');
     } finally {
-        if (conn) return conn.end(); //this should maybe execute after all queries
+        if (conn) return conn.end();
     }
 });
 
-app.get('/addBook', (req,res) => {
+app.get('/addBook', (req,res) => { //add book form route
     res.sendFile(`${root_path}/frontend/addBook.html`);
 });
 
-app.post('/addBook', async(req,res) => {
-    let data = [
-        req.body.title, req.body.publisher, Number(req.body.isbn), req.body.author,
-        Number(req.body.pages), req.body.summary, Number(req.body.copies), req.body.image,
-        req.body.category, req.body.language, req.body.keywords
-    ];
-    
+app.post('/addBook', upload.single('image'), async(req,res) => { //submit form route
+
+    let data;
+    if(req.file === undefined){
+        data = [
+            req.body.title, req.body.publisher, Number(req.body.isbn), req.body.author,
+            Number(req.body.pages), req.body.summary, Number(req.body.copies), null,
+            req.body.category, req.body.language, req.body.keywords
+        ];
+    } else {
+        data = [
+            req.body.title, req.body.publisher, Number(req.body.isbn), req.body.author,
+            Number(req.body.pages), req.body.summary, Number(req.body.copies), req.file.buffer,
+            req.body.category, req.body.language, req.body.keywords
+        ];
+    }
+
     let conn;
     try {
         conn = await pool.getConnection();
@@ -69,26 +85,29 @@ app.post('/addBook', async(req,res) => {
         //     [data.title, data.publisher, data.isbn, data.author, data.pages, data.summary, data.copies, data.image, data.category, data.language, data.keywords]); //returns json
         let books = await conn.query(
             "INSERT INTO Book(Title, Publisher, ISBN, Author, Pages, Summary, Copies, Image, Category, Language, Keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            data); //returns json
+            data);
         res.redirect('/success');
     } catch (err) {
+        console.log('DB Error');
         res.redirect('/addBookf');
     } finally {
         if (conn) return conn.end();
     }
 });
 
-app.get('/addBookf', (req,res) => {
+app.get('/addBookf', (req,res) => { //get failure page for adding book
     res.sendFile(`${root_path}/frontend/addBookf.html`);
 });
 
-app.get('/success', (req,res) => {
+app.get('/success', (req,res) => { //get success page
     res.sendFile(`${root_path}/frontend/success.html`);
 });
 
-app.get('/signin', (req,res) => {
+app.get('/signin', (req,res) => { //get signin page
     res.sendFile(`${root_path}/frontend/signin.html`);
 });
+
+
 
 
 

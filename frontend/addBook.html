@@ -9,36 +9,45 @@
 <body>
     <h2>Please fill in the form below</h2>
 
-    <form action="/addBook" method="POST">
+    <form action="/addBook" method="POST" enctype="multipart/form-data">
         <label for="title">Title: </label>
-        <input type="text" name="title">
+        <input type="text" name="title" required>
         <br>
         <label for="Publisher">Publisher: </label>
-        <input type="text" name="publisher">
+        <input type="text" name="publisher" required>
         <br>
         <label for="isbn">ISBN: </label>
-        <input type="text" name="isbn">
+        <input type="text" name="isbn" required>
         <br>
         <label for="author">Author: </label> <!-- this must take multiple values -->
-        <input type="text" name="author">
+        <input type="text" name="author" required>
         <br>
         <label for="pages">Pages: </label>
-        <input type="text" name="pages">
+        <input type="number" name="pages" required>
         <br>
         <label for="summary">Summary: </label>
-        <input type="text" name="summary">
+        <textarea name="summary"></textarea>
         <br>
         <label for="copies">Copies available: </label>
-        <input type="text" name="copies">
+        <input type="number" name="copies" required>
         <br>
         <label for="image">Image: </label>
-        <input type="file" name="image">
+        <input type="file" name="image" accept="image/jpeg" >
         <br>
         <label for="category">Category: </label>
         <input type="text" name="category">
         <br>
         <label for="language">Language: </label>
-        <input type="text" name="language">
+        <select name="language">
+            <option>Greek</option>
+            <option>English</option>
+            <option>French</option>
+            <option>German</option>
+            <option>Russian</option>
+            <option>Spanish</option>
+            <option>Italian</option>
+            <option>Chinese</option>
+          </select>
         <br>
         <label for="keywords">Keywords: </label>
         <input type="text" name="keywords">
