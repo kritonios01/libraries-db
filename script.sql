@@ -29,13 +29,21 @@ CREATE TABLE IF NOT EXISTS Book (
     ISBN VARCHAR(13) NOT NULL,
     Pages INT(4),
     Summary VARCHAR(1000),
-    Copies INT(2) NOT NULL,
     Image MEDIUMBLOB,
     Language ENUM ('Greek', 'English', 'French', 'German', 'Russian', 'Spanish', 'Italian', 'Chinese') NOT NULL,
     PRIMARY KEY(Book_id),
     CHECK(PAGES BETWEEN 1 AND 9999),
-    CHECK(COPIES BETWEEN 1 AND 99),
     CHECK(CHAR_LENGTH(ISBN) = 13)
+);
+
+CREATE TABLE IF NOT EXISTS Book_Copies (
+    Book_id INT,
+    School_id INT,
+    Copies INT(2) NOT NULL,
+    PRIMARY KEY(Book_id, School_id),
+    FOREIGN KEY Book_id REFERENCES Book(Book_id) ON DELETE CASCADE
+    FOREIGN KEY School_id REFERENCES School(School_id) ON DELETE CASCADE
+    CHECK(COPIES BETWEEN 1 AND 99),
 );
 
 CREATE TABLE IF NOT EXISTS Author (
@@ -49,8 +57,8 @@ CREATE TABLE IF NOT EXISTS Book_authors (
     Book_id INT,
     Author_id INT,
     PRIMARY KEY(Book_id, Author_id),
-    FOREIGN KEY Book_id REFERENCES Book(Book_id),
-    FOREIGN KEY Author_id REFERENCES Author(Author_id)
+    FOREIGN KEY Book_id REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY Author_id REFERENCES Author(Author_id) ON DELETE CASCADE
 )
 
 CREATE TABLE IF NOT EXISTS Category (
@@ -73,8 +81,8 @@ CREATE TABLE IF NOT EXISTS Book_categories (
     Book_id INT,
     Category_id INT,
     PRIMARY KEY(Book_id, Category_id),
-    FOREIGN KEY Book_id REFERENCES Book(Book_id),
-    FOREIGN KEY Category_id REFERENCES Category(Category_id)
+    FOREIGN KEY Book_id REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY Category_id REFERENCES Category(Category_id) ON DELETE CASCADE
 )
 
 CREATE TABLE IF NOT EXISTS Keyword (
@@ -87,8 +95,8 @@ CREATE TABLE IF NOT EXISTS Book_keywords (
     Book_id INT,
     Keyword_id INT,
     PRIMARY KEY(Book_id, Keyword_id),
-    FOREIGN KEY Book_id REFERENCES Book(Book_id),
-    FOREIGN KEY Keyword_id REFERENCES Keyword(Keyword_id)
+    FOREIGN KEY Book_id REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY Keyword_id REFERENCES Keyword(Keyword_id) ON DELETE CASCADE
 )
 
 CREATE INDEX IF NOT EXISTS booksearch_idx
@@ -103,6 +111,16 @@ CREATE TABLE IF NOT EXISTS Loan (
     Book_id INT,
     User_id INT,
     PRIMARY KEY(Loan_id, Book_id, User_id),
+	FOREIGN KEY(Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Reservation (
+	Reservation_id INT,
+    Date DATE NOT NULL,
+    Book_id INT,
+    User_id INT,
+    PRIMARY KEY(Reservation_id, Book_id, User_id),
 	FOREIGN KEY(Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
     FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE CASCADE
 );
