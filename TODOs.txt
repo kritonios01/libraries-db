@@ -2,6 +2,8 @@ Apo SQL menei to table gia reservations kai ta multivalued attributes
 Kapoia triggers h scheduled events (px diagrafi krathmenou vivliou meta apo
 ebdomada)
 
+na perasoun ta cpnstraints sthn html
+
 na dw pws ginetai backup tis vashs
 
 prepei otan einai keno ena attribute na pernaei ws null --> pernaei ws empty string
