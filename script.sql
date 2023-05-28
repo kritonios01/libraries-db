@@ -4,7 +4,9 @@ CREATE TABLE IF NOT EXISTS User (
     Password VARCHAR(20) NOT NULL,
     Name VARCHAR(30) NOT NULL,
     Usertype ENUM("Admin", "Librarian", "Student", "Teacher") NOT NULL,
-    PRIMARY KEY(User_id)
+    School_id INT NULL,
+    PRIMARY KEY(User_id),
+    FOREIGN KEY(School_id) REFERENCES School(School_id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS School (
@@ -14,11 +16,11 @@ CREATE TABLE IF NOT EXISTS School (
     City VARCHAR(20) NOT NULL,
     Phone VARCHAR(10) NOT NULL,
     Email VARCHAR(30) NOT NULL,
-    Head_id INT NOT NULL,
-    Library_op_id INT NOT NULL,
+    Head_id INT NULL,
+    Library_op_id INT NULL,
     PRIMARY KEY(School_id),
-    FOREIGN KEY(Head_id) REFERENCES User(User_id),
-    FOREIGN KEY(Library_op_id) REFERENCES User(User_id),
+    FOREIGN KEY(Head_id) REFERENCES User(User_id) ON DELETE SET NULL,
+    FOREIGN KEY(Library_op_id) REFERENCES User(User_id) ON DELETE SET NULL,
     CHECK(Email REGEXP ".+@.+(\.com|\.gr)$")
 );
 
@@ -41,15 +43,14 @@ CREATE TABLE IF NOT EXISTS Book_Copies (
     School_id INT,
     Copies INT(2) NOT NULL,
     PRIMARY KEY(Book_id, School_id),
-    FOREIGN KEY Book_id REFERENCES Book(Book_id) ON DELETE CASCADE
-    FOREIGN KEY School_id REFERENCES School(School_id) ON DELETE CASCADE
+    FOREIGN KEY Book_id REFERENCES Book(Book_id) ON DELETE CASCADE,
+    FOREIGN KEY School_id REFERENCES School(School_id) ON DELETE CASCADE,
     CHECK(COPIES BETWEEN 1 AND 99),
 );
 
 CREATE TABLE IF NOT EXISTS Author (
     Author_id INT AUTO_INCREMENT,
-    First_name VARCHAR(20) NOT NULL,
-    Last_name VARCHAR(25) NOT NULL,
+    Name VARCHAR(50) NOT NULL,
     PRIMARY KEY(Author_id)
 )
 
@@ -100,14 +101,14 @@ CREATE TABLE IF NOT EXISTS Book_keywords (
 )
 
 CREATE INDEX IF NOT EXISTS booksearch_idx
-ON Book(Title, Author, Publisher, ISBN);
+ON Book(Title, Author, ISBN);
 
 CREATE TABLE IF NOT EXISTS Loan (
 	Loan_id INT,
     Date_out DATE NOT NULL,
     Due_date DATE NOT NULL,
     Return_date DATE NOT NULL,
-    Status ENUM("BORROWED", "ON HOLD", "RETURNED", "LATE"),
+    Status ENUM("BORROWED", "RETURNED", "LATE"),
     Book_id INT,
     User_id INT,
     PRIMARY KEY(Loan_id, Book_id, User_id),
@@ -117,7 +118,7 @@ CREATE TABLE IF NOT EXISTS Loan (
 
 CREATE TABLE IF NOT EXISTS Reservation (
 	Reservation_id INT,
-    Date DATE NOT NULL,
+    Date_ DATE NOT NULL,
     Book_id INT,
     User_id INT,
     PRIMARY KEY(Reservation_id, Book_id, User_id),
@@ -140,5 +141,35 @@ CREATE TABLE IF NOT EXISTS Review (
 -- Automatically subtract 1 from copies when a new loan is requested
 CREATE TRIGGER subtract_copies_after_loan
 AFTER INSERT ON Loan FOR EACH ROW
-UPDATE Book
-SET Copies = Copies - 1 WHERE Book_ID = NEW.Book_id;
+BEGIN
+    UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
+    SET b.Copies = b.Copies - 1 
+    WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
+END;
+
+CREATE TRIGGER  add_copy_after_return
+AFTER UPDATE ON Loan FOR EACH ROW
+BEGIN
+    IF NEW.Status = 'RETURNED' AND OLD.Status <> 'RETURNED' THEN
+        UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
+        SET b.Copies = b.Copies - 1 
+        WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
+    END IF;
+END; 
+
+CREATE EVENT IF NOT EXISTS delete_expired_reservation
+ON SCHEDULE EVERY 1 HOUR
+DO
+    BEGIN
+        DELETE FROM Reservation
+        WHERE Date_ < DATEADD(day, -7, GETDATE());
+    END;
+
+CREATE EVENT IF NOT EXISTS set_delayed_loan
+ON SCHEDULE EVERY 1 HOUR
+DO
+    BEGIN
+        UPDATE Loan l
+        SET l.Status = 'LATE';
+        WHERE L.Due_date > GETDATE() AND l.Status = 'BORROWED';
+    END;
