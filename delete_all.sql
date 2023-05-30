@@ -1,5 +1,13 @@
-DROP TABLE Review;
-DROP TABLE Loan;
-DROP TABLE Book;
-DROP TABLE School;
 DROP TABLE User;
+DROP TABLE School;
+DROP TABLE Book;
+DROP TABLE Book_copies;
+DROP TABLE Author;
+DROP TABLE Book_authors;
+DROP TABLE Category;
+DROP TABLE Book_categories;
+DROP TABLE Keyword;
+DROP TABLE Book_keywords;
+DROP TABLE Loan;
+DROP TABLE Reservation;
+DROP TABLE Review;
