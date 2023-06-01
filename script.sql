@@ -1,13 +1,3 @@
-CREATE TABLE IF NOT EXISTS User (
-	User_id INT AUTO_INCREMENT,
-    Username VARCHAR(20) NOT NULL UNIQUE,
-    Password VARCHAR(100) NOT NULL,
-    Name VARCHAR(30) NOT NULL,
-    Usertype ENUM("Admin", "Library Operator", "Student", "Teacher") NOT NULL,
-    School_id INT NULL,
-    PRIMARY KEY(User_id)
-);
-
 CREATE TABLE IF NOT EXISTS School (
     School_id INT AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -15,15 +5,21 @@ CREATE TABLE IF NOT EXISTS School (
     City VARCHAR(20) NOT NULL,
     Phone VARCHAR(10) NOT NULL,
     Email VARCHAR(30) NOT NULL,
-    Head_id INT NULL,
-    Library_op_id INT NULL,
     PRIMARY KEY(School_id),
-    FOREIGN KEY(Head_id) REFERENCES User(User_id) ON DELETE SET NULL,
-    FOREIGN KEY(Library_op_id) REFERENCES User(User_id) ON DELETE SET NULL,
     CHECK(Email REGEXP ".+@.+(\.com|\.gr)$")
 );
 
-ALTER TABLE User ADD FOREIGN KEY(School_id) REFERENCES School(School_id) ON DELETE SET NULL;
+CREATE TABLE IF NOT EXISTS User (
+	User_id INT AUTO_INCREMENT,
+    Username VARCHAR(20) NOT NULL UNIQUE,
+    Password VARCHAR(100) NOT NULL,
+    Name VARCHAR(30) NOT NULL,
+    Age INT NOT NULL,
+    Usertype ENUM("Admin", "Library Operator", "Director", "Student", "Teacher") NOT NULL,
+    School_id INT,
+    PRIMARY KEY(User_id),
+    FOREIGN KEY(School_id) REFERENCES School(School_id) ON DELETE SET NULL
+);
 
 CREATE TABLE IF NOT EXISTS Book (
 	Book_id INT AUTO_INCREMENT,
