@@ -210,9 +210,9 @@ app.get('/signup', (req, res) => { //get signup page
     res.sendFile(`${root_path}/frontend/signup.html`);
 });
 
-// bcrypt.hash('12345', saltRounds, function(err, hash) {
-//     console.log(hash);
-// });
+bcrypt.hash('12345', saltRounds, function(err, hash) {
+    console.log(hash);
+});
 
 
 
