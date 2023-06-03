@@ -85,6 +85,7 @@ VALUES
 
 
 
+
 INSERT INTO Book (Title, Publisher, ISBN, Pages, Summary, Image, Language)
 VALUES
     ('The Alchemist', 'HarperOne', '9780062315007', 208, 'A story about following your dreams and finding your purpose in life.', NULL, 'English'),
@@ -512,12 +513,244 @@ INSERT INTO Book_categories (Book_id, Category_id) VALUES
 (81, 17), -- Η Συμμορία των Μεταναστών: Horror
 (82, 9),  -- Ο Κόκκινος Δράκος: Crime and Mystery
 (82, 19), -- Ο Κόκκινος Δράκος: Inspirational and Motivational
-(82, 25); -- Ο Κόκκινος Δράκος: Religion and Spirituality
+(82, 25), -- Ο Κόκκινος Δράκος: Religion and Spirituality
+(83, 2),   -- Το Όνομα του Ανέμου (Art)
+    (83, 12),  -- Το Όνομα του Ανέμου (Fantasy)
+    (83, 23),  -- Το Όνομα του Ανέμου (Philosophy)
+    (84, 2),   -- Η Αλίκη στη Χώρα των Θαυμάτων (Art)
+    (84, 11),  -- Η Αλίκη στη Χώρα των Θαυμάτων (Education and Teaching)
+    (84, 27),  -- Η Αλίκη στη Χώρα των Θαυμάτων (Science Fiction)
+    (85, 7),   -- Το Μεγάλο Τείχος (Cookbooks and Food)
+    (85, 12),  -- Το Μεγάλο Τείχος (Fantasy)
+    (85, 15),  -- Το Μεγάλο Τείχος (Historical Fiction)
+    (86, 6),   -- Ο Υποβρύχιος Κόσμος (Computing and Technology)
+    (86, 10),  -- Ο Υποβρύχιος Κόσμος (Drama)
+    (86, 26),  -- Ο Υποβρύχιος Κόσμος (Science)
+    (87, 12),  -- Ο Μικρός Πρίγκιπας (Fantasy)
+    (87, 18),  -- Ο Μικρός Πρίγκιπας (Humor)
+    (87, 25),  -- Ο Μικρός Πρίγκιπας (Politics and Social Sciences)
+    (88, 3),   -- Η Επιστροφή του Σερίφη (Biography)
+    (88, 12),  -- Η Επιστροφή του Σερίφη (Fantasy)
+    (88, 20),  -- Η Επιστροφή του Σερίφη (Literary Fiction)
+    (89, 7),   -- Η Πόλη των Καταραμένων (Cookbooks and Food)
+    (89, 16),  -- Η Πόλη των Καταραμένων (History)
+    (89, 30),  -- Η Πόλη των Καταραμένων (True Crime)
+    (90, 2),   -- Το Σώμα της Αθηνάς (Art)
+    (90, 5),   -- Το Σώμα της Αθηνάς (Comics and Graphic Novels)
+    (90, 17),  -- Το Σώμα της Αθηνάς (Horror)
+    (91, 12),  -- Ο Εραστής της Λαίδης Τσατλίν (Fantasy)
+    (91, 22),  -- Ο Εραστής της Λαίδης Τσατλίν (Music)
+    (91, 27),  -- Ο Εραστής της Λαίδης Τσατλίν (Science Fiction)
+    (92, 6),   -- Ο Ναυαγός των Παγετώνων (Computing and Technology)
+    (92, 16),  -- Ο Ναυαγός των Παγετώνων (History)
+    (92, 28),  -- Ο Ναυαγός των Παγετώνων (Self-Help and Personal Development)
+    (93, 3),   -- Ο Μαέστρος και η Μαργαρίτα (Biography)
+    (93, 8),   -- Ο Μαέστρος και η Μαργαρίτα (Crime and Mystery)
+    (93, 20),  -- Ο Μαέστρος και η Μαργαρίτα (Literary Fiction)
+    (94, 9),   -- Η Καλύβα (Crafts and Hobbies)
+    (94, 14),  -- Η Καλύβα (Health and Wellness)
+    (94, 24),  -- Η Καλύβα (Poetry)
+    (95, 8),   -- Οι Αδελφοί Καραμαζόφ (Crime and Mystery)
+    (95, 18),  -- Οι Αδελφοί Καραμαζόφ (Humor)
+    (95, 23),  -- Οι Αδελφοί Καραμαζόφ (Philosophy)
+    (96, 4),   -- Το Αφεντικό των Μυρμηγκιών (Business and Economics)
+    (96, 13),  -- Το Αφεντικό των Μυρμηγκιών (Fiction)
+    (96, 27),  -- Το Αφεντικό των Μυρμηγκιών (Science Fiction)
+    (97, 8),   -- Το Αντίθετο του Κεφαλαίου (Crime and Mystery)
+    (97, 21),  -- Το Αντίθετο του Κεφαλαίου (Music)
+    (97, 32),  -- Το Αντίθετο του Κεφαλαίου (Western)
+    (98, 5),   -- Η Μάχη των Δυνάμεων (Comics and Graphic Novels)
+    (98, 15),  -- Η Μάχη των Δυνάμεων (Historical Fiction)
+    (98, 31),  -- Η Μάχη των Δυνάμεων (Travel)
+    (99, 12),  -- Ο Άρχοντας των Δαχτυλιδιών (Fantasy)
+    (99, 18),  -- Ο Άρχοντας των Δαχτυλιδιών (Humor)
+    (99, 27),  -- Ο Άρχοντας των Δαχτυλιδιών (Science Fiction)
+    (100, 1),  -- Ο Τελευταίος Πειρασμός (Action and Adventure)
+    (100, 12), -- Ο Τελευταίος Πειρασμός (Fantasy)
+    (100, 19), -- Ο Τελευταίος Πειρασμός (Inspirational and Motivational);
+(101, 7),   -- Η Κόκκινη Πύργος (Cookbooks and Food)
+    (101, 16),  -- Η Κόκκινη Πύργος (History)
+    (101, 29),  -- Η Κόκκινη Πύργος (Sports)
+    (102, 1),   -- Το Στίγμα του Δαίμονα (Action and Adventure)
+    (102, 9),   -- Το Στίγμα του Δαίμονα (Crime and Mystery)
+    (102, 27),  -- Το Στίγμα του Δαίμονα (Science Fiction)
+    (103, 5),   -- Ο Αστερίξ και η Λατραβιάτα (Comics and Graphic Novels)
+    (103, 13),  -- Ο Αστερίξ και η Λατραβιάτα (Fiction)
+    (103, 23),  -- Ο Αστερίξ και η Λατραβιάτα (Philosophy)
+    (104, 14),  -- Ο Χαμένος Κόσμος (Health and Wellness)
+    (104, 20),  -- Ο Χαμένος Κόσμος (Literary Fiction)
+    (104, 31),  -- Ο Χαμένος Κόσμος (Travel)
+    (105, 14),  -- Η Πόλη του Ήλιου (Health and Wellness)
+    (105, 15),  -- Η Πόλη του Ήλιου (Historical Fiction)
+    (105, 24),  -- Η Πόλη του Ήλιου (Poetry)
+    (106, 3),   -- Η Κάστα (Biography)
+    (106, 6),   -- Η Κάστα (Computing and Technology)
+    (106, 19),  -- Η Κάστα (Inspirational and Motivational)
+    (107, 15),  -- Ο Πόλεμος των Κόσμων (Historical Fiction)
+    (107, 21),  -- Ο Πόλεμος των Κόσμων (Music)
+    (107, 29),  -- Ο Πόλεμος των Κόσμων (Sports)
+    (108, 13),  -- Οι Περιπέτειες του Τσαρλι και του Σάμπλι (Fiction)
+    (108, 18),  -- Οι Περιπέτειες του Τσαρλι και του Σάμπλι (Humor)
+    (108, 23),  -- Οι Περιπέτειες του Τσαρλι και του Σάμπλι (Philosophy)
+    (109, 9),   -- Ο Στρατηγός των Σκιών (Crime and Mystery)
+    (109, 15),  -- Ο Στρατηγός των Σκιών (Historical Fiction)
+    (109, 28),  -- Ο Στρατηγός των Σκιών (Self-Help and Personal Development)
+    (110, 9),   -- Οι Περιπέτειες του Τομ Σώγιερ (Crime and Mystery)
+    (110, 13),  -- Οι Περιπέτειες του Τομ Σώγιερ (Fiction)
+    (110, 30),  -- Οι Περιπέτειες του Τομ Σώγιερ (Thriller)
+    (111, 3),   -- Ο Πορτραίτο του Ντόριαν Γκρέυ (Biography)
+    (111, 18),  -- Ο Πορτραίτο του Ντόριαν Γκρέυ (Humor)
+    (111, 27),  -- Ο Πορτραίτο του Ντόριαν Γκρέυ (Science Fiction)
+    (112, 2),   -- Το Νησί του Θησαυρού (Art)
+    (112, 8),   -- Το Νησί του Θησαυρού (Crafts and Hobbies)
+    (112, 25),  -- Το Νησί του Θησαυρού (Politics and Social Sciences)
+    (113, 11),  -- Η Μυστηριώδης Υπόθεση του Στύξ (Drama)
+    (113, 14),  -- Η Μυστηριώδης Υπόθεση του Στύξ (Health and Wellness)
+    (113, 22),  -- Η Μυστηριώδης Υπόθεση του Στύξ (Music)
+    (114, 9),   -- Το Μυστικό της Προδοσίας (Crime and Mystery)
+    (114, 19),  -- Το Μυστικό της Προδοσίας (Inspirational and Motivational)
+    (114, 32),  -- Το Μυστικό της Προδοσίας (True Crime)
+    (115, 7),    -- Οι Περιπέτειες του Χάκλεμπερυ Φιν (Cookbooks and Food)
+    (115, 14),   -- Οι Περιπέτειες του Χάκλεμπερυ Φιν (Historical Fiction)
+    (115, 26),   -- Οι Περιπέτειες του Χάκλεμπερυ Φιν (Science)
+    (116, 12),   -- Οι Σταχτοπούτες Πεθερές (Fantasy)
+    (116, 21),   -- Οι Σταχτοπούτες Πεθερές (Literary Fiction)
+    (116, 25),   -- Οι Σταχτοπούτες Πεθερές (Politics and Social Sciences)
+    (117, 5),    -- Η Περίπτωση του Υποδικαστή Φολς (Comics and Graphic Novels)
+    (117, 12),   -- Η Περίπτωση του Υποδικαστή Φολς (Fantasy)
+    (117, 23),   -- Η Περίπτωση του Υποδικαστή Φολς (Philosophy)
+    (118, 18),   -- Ο Τύπος της Κυριακής (Humor)
+    (118, 21),   -- Ο Τύπος της Κυριακής (Literary Fiction)
+    (118, 27),   -- Ο Τύπος της Κυριακής (Science Fiction)
+    (119, 11),   -- Ο Κύριος Νόρις Αλλάζει Τρένα (Drama)
+    (119, 23),   -- Ο Κύριος Νόρις Αλλάζει Τρένα (Philosophy)
+    (119, 30),   -- Ο Κύριος Νόρις Αλλάζει Τρένα (Thriller)
+    (120, 8),    -- Η Παράδοση της Αντιγόνης (Crafts and Hobbies)
+    (120, 21),   -- Η Παράδοση της Αντιγόνης (Literary Fiction)
+    (120, 28),   -- Η Παράδοση της Αντιγόνης (Religion and Spirituality)
+    (121, 2),    -- Ο Μεγάλος Φιλόσοφος (Art)
+    (121, 21),   -- Ο Μεγάλος Φιλόσοφος (Literary Fiction)
+    (121, 25),   -- Ο Μεγάλος Φιλόσοφος (Politics and Social Sciences)
+    (122, 29),   -- Ο Ναυτικός Υπόλοχαγός (Sports)
+    (122, 30),   -- Ο Ναυτικός Υπόλοχαγός (Thriller)
+    (122, 33),   -- Ο Ναυτικός Υπόλοχαγός (Western)
+    (123, 12),   -- Οι Περιπέτειες του Χάρι Πότερ (Fantasy)
+    (123, 13),   -- Οι Περιπέτειες του Χάρι Πότερ (Fiction)
+    (123, 24),   -- Οι Περιπέτειες του Χάρι Πότερ (Religion and Spirituality)
+    (124, 30),   -- Το Στοίχημα του Δικαστή (Thriller)
+    (124, 31),   -- Το Στοίχημα του Δικαστή (Travel)
+    (124, 34),   -- Το Στοίχημα του Δικαστή (True Crime)
+    (125, 8),    -- Οι Χορευτές του Μπαλέτου (Crafts and Hobbies)
+    (125, 15),   -- Οι Χορευτές του Μπαλέτου (Health and Wellness)
+    (125, 29),   -- Οι Χορευτές του Μπαλέτου (Sports)
+    (126, 1),    -- Ο Ανεκπλήρωτος Έρωτας της Σαρλότ (Action and Adventure)
+    (126, 13),   -- Ο Ανεκπλήρωτος Έρωτας της Σαρλότ (Fiction)
+    (126, 14),   -- Ο Ανεκπλήρωτος Έρωτας της Σαρλότ (Historical Fiction)
+    (127, 3),    -- Ο Φάντασμα της Όπερας (Biography)
+    (127, 9),    -- Ο Φάντασμα της Όπερας (Crime and Mystery)
+    (127, 15),   -- Ο Φάντασμα της Όπερας (Health and Wellness)
+    (128, 1),    -- Ο Αμερικάνος (Action and Adventure)
+    (128, 13),   -- Ο Αμερικάνος (Fiction)
+    (128, 26),   -- Ο Αμερικάνος (Science)
+    (129, 1),    -- Οι Αθάνατοι Έρωτες της Αλεξίας (Action and Adventure)
+    (129, 13),   -- Οι Αθάνατοι Έρωτες της Αλεξίας (Fiction)
+    (129, 14),   -- Οι Αθάνατοι Έρωτες της Αλεξίας (Historical Fiction)
+    (130, 1),    -- Η Εκδίκηση του Μόντε Κρίστο (Action and Adventure)
+    (130, 13),   -- Η Εκδίκηση του Μόντε Κρίστο (Fiction)
+    (130, 14),   -- Η Εκδίκηση του Μόντε Κρίστο (Historical Fiction)
+    (131, 1),    -- Το Απαγορευμένο Βιβλίο (Action and Adventure)
+    (131, 13),   -- Το Απαγορευμένο Βιβλίο (Fiction)
+    (131, 17),   -- Το Απαγορευμένο Βιβλίο (Horror)
+    (132, 13),   -- Η Εραστής (Fiction)
+    (132, 21),   -- Η Εραστής (Literary Fiction)
+    (132, 22),   -- Η Εραστής (Memoir)
+    (133, 4),    -- Η Κόκκινη Πύλη (Business and Finance)
+    (133, 9),    -- Η Κόκκινη Πύλη (Crime and Mystery)
+    (133, 19),   -- Η Κόκκινη Πύλη (Legal)
+    (134, 10),   -- Ο Πλούτος των Εθνών (Economics)
+    (134, 16),   -- Ο Πλούτος των Εθνών (History)
+    (134, 25),   -- Ο Πλούτος των Εθνών (Politics and Social Sciences)
+    (135, 2),    -- Η Άσπρη Καμήλα (Art)
+    (135, 12),   -- Η Άσπρη Καμήλα (Fantasy)
+    (135, 15),   -- Η Άσπρη Καμήλα (Health and Wellness)
+    (136, 11),   -- Τα Παιδιά της Λυκανθρώπου (Drama)
+    (136, 13),   -- Τα Παιδιά της Λυκανθρώπου (Fiction)
+    (136, 20),   -- Τα Παιδιά της Λυκανθρώπου (Literature)
+    (137, 1),    -- Πόλεμος των Κόσμων (Action and Adventure)
+    (137, 13),   -- Πόλεμος των Κόσμων (Fiction)
+    (137, 26);   -- Πόλεμος των Κόσμων (Science)
 
 
+
+
+
+
+
+INSERT INTO Author (Name)
+VALUES 
+        ('Paulo Coelho'),
+        ('Jane Austen'),
+        ('Harper Lee'),
+        ('George Orwell'),
+        ('F. Scott Fitzgerald'),
+        ('Herman Melville'),
+        ('J.D. Salinger'),
+        ('Charlotte Bronte'),
+        ('Penguin Classics'),
+        ('Aldous Huxley'),
+        ('J.R.R. Tolkien'),
+        ('J.K. Rowling'),
+        ('C.S. Lewis'),
+        ('George Orwell'),
+        ('Dan Brown'),
+        ('Margaret Mitchell'),
+        ('Suzanne Collins'),
+        ('John Green'),
+        ('Khaled Hosseini'),
+        ('Paula Hawkins'),
+        ('Stephen King'),
+        ('Oscar Wilde'),
+        ('Emily Bronte'),
+        ('Markus Zusak'),
+        ('James Dashner'),
+        ('Kathryn Stockett'),
+        ('Lois Lowry'),
+        ('Stieg Larsson'),
+        ('Sue Monk Kidd'),
+        ('Alice Walker'),
+        ('Ray Bradbury'),
+        ('Homer'),
+        ('Kurt Vonnegut'),
+        ('Alexandre Dumas'),
+        ('William Golding'),
+        ('Albert Camus'),
+        ('Victor Hugo'),
+        ('Antoine de Saint-Exupery'),
+        ('Gustave Flaubert'),
+        ('Charles Baudelaire'),
+        ('Emile Zola'),
+        ('Voltaire'),
+        ('Stendhal'),
+        ('Pierre Choderlos de Laclos'),
+        ('Alain-Fournier'),
+        ('Guy de Maupassant'),
+        ('Louis-Ferdinand Celine'),
+        ('Jean-Paul Sartre'),
+        ('Francoise Sagan'),
+        ('Jules Verne');
 
 DELIMITER //
-FOR i IN 1..3
+FOR i IN 1..137
+DO
+    INSERT INTO Book_authors (Book_id, Author_id)
+    VALUES
+        (i, 1 + FLOOR(RAND() * 50));
+END FOR;
+//
+DELIMITER ;
+
+DELIMITER //
+FOR i IN 1..137
 DO
     INSERT INTO Book_Copies (Book_id, School_id, Copies)
     VALUES
