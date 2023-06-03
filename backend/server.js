@@ -6,6 +6,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('mariadb');
+const mysqldump = require('mysqldump');
 const ejs = require('ejs');
 const multer = require('multer');
 const fs = require("fs");
@@ -24,8 +25,8 @@ const upload = multer({ storage: storage });
 
 //Express init | use bodyParser for post requests | set ejs as the view engine | use a public folder for requests
 const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(`${root_path}/frontend/public`));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set('views', `${root_path}/frontend/views`);
 app.set('view engine', 'ejs');
 
@@ -49,25 +50,18 @@ const pool = db.createPool({
     connectionLimit: 10
 });
 
-/* ---------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------------- */
 //Functions for authentication
-passport.use(new authStrategy( async(username, password, done) => {
-
-    //console.log('ddd');
-    console.log(username, password);
-
+passport.use(new authStrategy(async (username, password, done) => {
     let conn = await pool.getConnection();
-    try{
+    try {
         let user = await conn.query("SELECT * FROM User WHERE Username = ?", [username]);
+        conn.end();
         if (Object.keys(user).length === 0) {
-            conn.end();
             console.log('User not found');
             return done(null, false, { message: 'Incorrect username' });
         } else {
-            conn.end();
-            console.log('User found!')
             bcrypt.compare(password, user[0].Password, (err, res) => {
-                //console.log(user[0].Password, res);
                 if (err) {
                     console.log('Hashing error')
                     return done(err);
@@ -76,7 +70,7 @@ passport.use(new authStrategy( async(username, password, done) => {
                     return done(null, false, { message: 'Incorrect password' });
                 }
                 else {
-                    return done(null, user);
+                    return done(null, user[0]);
                 }
             });
         }
@@ -85,45 +79,101 @@ passport.use(new authStrategy( async(username, password, done) => {
         conn.end();
         return done(err);
     } finally {
-        conn.end();
+        if (conn) conn.end();
     }
-
-
-    /*if (Object.keys(user).length === 0) {
-        conn.end();
-        return cb(null, false, { message: 'Incorrect username or password.' });
-    }
-    bcrypt.compare(user[0].Password, password
-
-} catch (err) {
-    console.log('DB Error');
-    return cb(err);
-} finally {
-    if (conn) return conn.end();
-}*/
-
 }));
 
-passport.serializeUser( (user, done) => {
-    process.nextTick( () => {
+passport.serializeUser((user, done) => {
+    process.nextTick(() => {
         return done(null, {
-            username: user.Username
+            username: user.Username,
+            name: user.Name,
+            age: user.Age,
+            type: user.Usertype
         });
     });
 });
 
-passport.deserializeUser(function (user, done) {
-    process.nextTick(function () {
+passport.deserializeUser((user, done) => {
+    process.nextTick(() => {
         return done(null, user);
     });
 });
 
-/* ---------------------------------------------------------- */
-
+/* ------------------------------------------------------------------------------------------- */
 //Routes
 app.get('/', (req, res) => { //home route
+    //if(req.user) console.log(req.user);
     res.sendFile(`${root_path}/frontend/index.html`);
-    if(req.session.messages) { console.log(req.session.messages)};
+});
+
+app.get('/dashboard', (req, res) => {
+    if (req.user) {
+        switch (req.user.type) {
+            case 'Admin':
+                res.render('admin', { user:req.user });
+                break;
+            case 'Student':
+                res.render();
+                break;
+            case 'Teacher':
+                res.render();
+                break;
+        }
+    } else {
+        res.send('Error: You are not authorized to view this page');
+    }
+
+});
+
+app.get('/dashboardf', (req, res) => {
+    if(req.session.messages) res.render('dashboardf', { message: req.session.messages.pop() });
+    else res.render('dashboardf', { message: '' });
+});
+
+app.get('/dashboardsuc', (req, res) => {
+    if(req.session.messages) res.render('dashboardsuc', { message: req.session.messages.pop() });
+    else res.render('dashboardsuc', { message: '' });
+});
+
+app.post('/password', async (req, res) => {
+    bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {
+        if (err) throw err
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            await conn.query("UPDATE User SET Password = ? WHERE Username = ?", [hash, req.user.username]);
+            conn.end();
+            req.session.messages = ['Password change successful'];
+            res.redirect('/dashboardsuc');
+        } catch (err) {
+            if (conn) {
+                console.log('DB Query Error');
+                conn.end();
+            } else {
+                console.log('Hashing error');
+            }
+            req.session.messages = ['Password not changed!'];
+            res.redirect('/dashboardf');
+        }
+    });
+});
+
+app.get('/dbbackup', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        await mysqldump({
+            connection: {
+                host: 'localhost',
+                user: 'root',
+                password: '',
+                database: schema,
+            },
+            dumpToFile: `${root_path}/backups/backup.sql`,
+        });
+        res.download(`${root_path}/backups/backup.sql`);  
+    } else {
+        res.redirect('/');
+    }
 });
 
 app.get('/books', async (req, res) => { //show books 
@@ -139,7 +189,7 @@ app.get('/books', async (req, res) => { //show books
             if (book.Image === null) book.Image = emptyCover.toString('base64');
         }
 
-        res.render('books', { books: books, total_books: Object.keys(books).length });
+        res.render('books', { books: books, total_books: Object.keys(books).length, user: req.user });
     } catch (err) {
         console.log('DB Error');
     } finally {
@@ -194,26 +244,42 @@ app.get('/success', (req, res) => { //get success page
     res.sendFile(`${root_path}/frontend/success.html`);
 });
 
+
+/* -------------------------------------------------------------------------------------------------------------- */
+//Sign-in/out/up Routes
 app.get('/signin', (req, res) => { //get signin page
-    res.sendFile(`${root_path}/frontend/signin.html`);
+    if (req.isAuthenticated()) res.redirect('/');
+    else res.sendFile(`${root_path}/frontend/signin.html`);
 });
 
-app.post('/signin', 
-    passport.authenticate('local', {failureRedirect: '/', failureMessage: true}),
+app.post('/signin',
+    passport.authenticate('local', { failureRedirect: '/signinf', failureMessage: true }),
     (req, res) => {
-        //console.log(req.body);
-        res.send(`Signed in as ${JSON.stringify(req.user)}`);
+        res.redirect('/');
     }
 );
+
+app.post('/signout', (req, res) => {
+    req.logout(err => {
+        if (err) console.log('Error signing out!');
+        else res.redirect('/');
+    });
+
+});
+
 
 app.get('/signup', (req, res) => { //get signup page
     res.sendFile(`${root_path}/frontend/signup.html`);
 });
 
-bcrypt.hash('12345', saltRounds, function(err, hash) {
-    console.log(hash);
-});
+// bcrypt.hash('12345', saltRounds, function(err, hash) {
+//     console.log(hash);
+// });
 
+app.get('/signinf', (req, res) => {
+    if(req.session.messages) res.render('signinf', { message: req.session.messages.pop() });
+    else res.render('signinf', { message: '' });
+});
 
 
 

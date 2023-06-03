@@ -128,16 +128,16 @@
     <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
     <div class="form-floating">
-      <input type="text" class="form-control firstField" name="username" placeholder="Username">
+      <input type="text" class="form-control firstField" name="username" id="username" placeholder="Username" required>
       <label for="username">Username</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control lastField" name="password" placeholder="Password">
+      <input type="password" class="form-control lastField" name="password" id="password" placeholder="Password" required>
       <label for="password">Password</label>
     </div>
 
     <a class="w-70 btn btn-secondary" type="button" href="/">Home</a>
-    <input class="w-50 btn btn-lg btn-primary" type="submit" value="Sign in">
+    <input class="w-50 btn btn-lg btn-primary" type="submit" id="submit" value="Sign in">
 
   </form>
 </main>
