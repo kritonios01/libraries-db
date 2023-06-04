@@ -101,11 +101,11 @@ CREATE INDEX IF NOT EXISTS booksearch_idx
 ON Book(Title, ISBN); -- prepei na ginei ena index gia tous authors
 
 CREATE TABLE IF NOT EXISTS Loan (
-	Loan_id INT,
+	Loan_id INT AUTO_INCREMENT,
     Date_out DATE NOT NULL,
     Due_date DATE NOT NULL,
-    Return_date DATE NOT NULL,
-    Status ENUM("BORROWED", "RETURNED", "LATE"),
+    Return_date DATE,
+    Status ENUM("REQUESTED", "BORROWED", "RETURNED", "LATE"),
     Book_id INT,
     User_id INT,
     PRIMARY KEY(Loan_id, Book_id, User_id),
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS Loan (
 );
 
 CREATE TABLE IF NOT EXISTS Reservation (
-	Reservation_id INT,
+	Reservation_id INT AUTO_INCREMENT,
     Date_ DATE NOT NULL,
     Book_id INT,
     User_id INT,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS Reservation (
 );
 
 CREATE TABLE IF NOT EXISTS Review (
-	Review_id INT,
+	Review_id INT AUTO_INCREMENT,
     Rating TINYINT(1) NOT NULL,
     Review VARCHAR(200),
     Book_id INT NOT NULL,
@@ -142,35 +142,43 @@ AFTER INSERT ON Loan FOR EACH ROW
     SET b.Copies = b.Copies - 1 
     WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
 
-/*
-CREATE TRIGGER  add_copy_after_return
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS add_copy_after_return
 AFTER UPDATE ON Loan FOR EACH ROW
     IF NEW.Status = 'RETURNED' AND OLD.Status <> 'RETURNED' THEN
         UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
         SET b.Copies = b.Copies - 1 
         WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
     END IF;
+//
+DELIMITER ;
 
+DELIMITER //
 CREATE EVENT IF NOT EXISTS delete_expired_reservation
-ON SCHEDULE EVERY 1 HOUR
+ON SCHEDULE EVERY 12 HOUR
 DO
     BEGIN
         DELETE FROM Reservation
         WHERE Date_ < DATEADD(day, -7, GETDATE());
     END;
+//
+DELIMITER ;
 
+DELIMITER //
 CREATE EVENT IF NOT EXISTS set_delayed_loan
-ON SCHEDULE EVERY 1 HOUR
+ON SCHEDULE EVERY 12 HOUR
 DO
     BEGIN
         UPDATE Loan l
-        SET l.Status = 'LATE';
-        WHERE L.Due_date > GETDATE() AND l.Status = 'BORROWED';
-    END;*/
+        SET l.Status = 'LATE'
+        WHERE l.Due_date < GETDATE() AND l.Status = 'BORROWED';
+    END;
+//
+DELIMITER ;
 
 -- DROP VIEW Books_Summary;
 
-CREATE VIEW Books_Summary AS
+CREATE VIEW IF NOT EXISTS Books_Summary AS
 SELECT Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
 FROM Book
 JOIN Book_Copies ON Book.Book_id = Book_Copies.Book_id
