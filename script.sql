@@ -98,19 +98,30 @@ CREATE TABLE IF NOT EXISTS Book_keywords (
 );
 
 CREATE INDEX IF NOT EXISTS booksearch_idx
-ON Book(Title, ISBN); -- prepei na ginei ena index gia tous authors
+ON Book(Title, ISBN); 
+
+CREATE INDEX IF NOT EXISTS usersearch_idx
+ON User(Username, Password);
+
+CREATE INDEX IF NOT EXISTS authorsearch_idx
+ON Author(Author); 
+
+CREATE INDEX IF NOT EXISTS categorysearch_idx
+ON Category(Category); 
 
 CREATE TABLE IF NOT EXISTS Loan (
 	Loan_id INT AUTO_INCREMENT,
-    Date_out DATE NOT NULL,
-    Due_date DATE NOT NULL,
+    Date_out DATE,
+    Due_date DATE,
     Return_date DATE,
     Status ENUM("REQUESTED", "BORROWED", "RETURNED", "LATE"),
     Book_id INT,
     User_id INT,
     PRIMARY KEY(Loan_id, Book_id, User_id),
 	FOREIGN KEY(Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
-    FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE CASCADE
+    FOREIGN KEY(User_id) REFERENCES User(User_id) ON DELETE CASCADE,
+    CHECK (Date_out < Due_date),
+    CHECK (Date_out < Return_date)
 );
 
 CREATE TABLE IF NOT EXISTS Reservation (
@@ -135,13 +146,30 @@ CREATE TABLE IF NOT EXISTS Review (
     CHECK(Rating BETWEEN 1 AND 5)
 );
 
--- Automatically subtract 1 from copies when a new loan is requested
+-- Automatically subtract 1 from copies when a book is borrowed
+DELIMITER //
 CREATE TRIGGER IF NOT EXISTS subtract_copies_after_loan
 AFTER INSERT ON Loan FOR EACH ROW
-	UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
-    SET b.Copies = b.Copies - 1
-    WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
+    IF NEW.Status = 'BORROWED' THEN
+	    UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
+        SET b.Copies = b.Copies - 1
+        WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
+    END IF;
+//
+DELIMITER ;
 
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS subtract_copies_after_loan_granted
+AFTER UPDATE ON Loan FOR EACH ROW
+    IF OLD.Status = 'REQUESTED' AND NEW.Status = 'BORROWED' THEN
+	    UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
+        SET b.Copies = b.Copies - 1
+        WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
+    END IF;
+//
+DELIMITER ;
+
+-- Automatically add 1 to copies when a book is returned
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS add_copy_after_return
 AFTER UPDATE ON Loan FOR EACH ROW
@@ -175,8 +203,6 @@ DO
     END;
 //
 DELIMITER ;
-
--- DROP VIEW Books_Summary;
 
 CREATE VIEW IF NOT EXISTS Books_Summary AS
 SELECT Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
