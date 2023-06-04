@@ -217,32 +217,30 @@ app.get('/dbbackup', async (req, res) => {
     }
 });
 
-app.get('/books', async (req, res) => { //show books 
-    let emptyCover = fs.readFileSync(`${root_path}/frontend/public/images/no-book-cover.jpg`);
-//prepei na ginei authentication tou user
-    let conn;
-    try {
-        conn = await pool.getConnection();
-        //let books = await conn.query("SELECT * FROM Book");
-        // let books = await conn.query("SELECT Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies " + 
-        //                              "FROM Book " + 
-        //                              "INNER JOIN Book_Copies " + 
-        //                                 "ON Book.Book_id = Book_Copies.Book_id " +
-        //                              "INNER JOIN Book_Authors " + 
-        //                                 "ON Book.Book_id = Book_authors.Book_id " +
-        //                              "WHERE Book_Copies.School_id = ?", [req.user.school]);
-        let books = await conn.query("SELECT * FROM Books_Summary WHERE School_id = ?", [req.user.school]);
-        console.log(books);
+app.get('/books', async (req, res) => { //show books
+    if (req.isAuthenticated() &&
+       (req.user.type === 'Student'  ||
+        req.user.type === 'Teacher'  ||
+        req.user.type === 'Director' ||
+        req.user.type === 'Library Operator')) {
 
-        for (var book of books) {
-            if (book.Image === null) book.Image = emptyCover.toString('base64');
+        let emptyCover = fs.readFileSync(`${root_path}/frontend/public/images/no-book-cover.jpg`);
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let books = await conn.query("SELECT * FROM Books_Summary WHERE School_id = ?", [req.user.school]);
+            for (var book of books) {
+                if (book.Image === null) book.Image = emptyCover.toString('base64');
+            }
+
+            res.render('books', { books: books, total_books: Object.keys(books).length, user: req.user });
+        } catch (err) {
+            console.log('DB Error');
+        } finally {
+            if (conn) return conn.end();
         }
-
-        res.render('books', { books: books, total_books: Object.keys(books).length, user: req.user });
-    } catch (err) {
-        console.log('DB Error');
-    } finally {
-        if (conn) return conn.end();
+    } else {
+        res.send('Error: You are not authorized to view this page'); // na dialagei o admin sxoleio kai na vlepei ta vivlia tou
     }
 });
 

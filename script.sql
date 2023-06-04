@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS User (
 CREATE TABLE IF NOT EXISTS Book (
 	Book_id INT AUTO_INCREMENT,
     Title VARCHAR(80) NOT NULL,
-    Publisher VARCHAR(50) NOT NULL,
+    Publisher VARCHAR(100) NOT NULL,
     ISBN VARCHAR(13) NOT NULL,
     Pages INT(4),
     Summary VARCHAR(1000),
@@ -62,14 +62,14 @@ CREATE TABLE IF NOT EXISTS Book_authors (
 CREATE TABLE IF NOT EXISTS Category (
     Category_id INT AUTO_INCREMENT,
     Category ENUM (
-        'Action and Adventure', 'Art', 'Biography', 'Business and Economics', 
-        'Comics and Graphic Novels', 'Computing and Technology', 'Cookbooks and Food', 
-        'Crafts and Hobbies', 'Crime and Mystery', 'Drama', 'Education and Teaching', 
-        'Fantasy', 'Fiction', 'Health and Wellness', 'Historical Fiction', 'History', 
-        'Horror', 'Humor', 'Inspirational and Motivational', 'LGBTQ+', 'Literary Fiction', 
-        'Music', 'Parenting and Family', 'Philosophy', 'Poetry', 'Politics and Social Sciences', 
-        'Religion and Spirituality', 'Romance', 'Science', 'Science Fiction', 
-        'Self-Help and Personal Development', 'Sports', 'Thriller', 'Travel', 
+        'Action and Adventure', 'Art', 'Biography', 'Business and Economics',
+        'Comics and Graphic Novels', 'Computing and Technology', 'Cookbooks and Food',
+        'Crafts and Hobbies', 'Crime and Mystery', 'Drama', 'Education and Teaching',
+        'Fantasy', 'Fiction', 'Health and Wellness', 'Historical Fiction', 'History',
+        'Horror', 'Humor', 'Inspirational and Motivational', 'LGBTQ+', 'Literary Fiction',
+        'Music', 'Parenting and Family', 'Philosophy', 'Poetry', 'Politics and Social Sciences',
+        'Religion and Spirituality', 'Romance', 'Science', 'Science Fiction',
+        'Self-Help and Personal Development', 'Sports', 'Thriller', 'Travel',
         'True Crime', 'Western'
     ) NOT NULL,
     PRIMARY KEY(Category_id)
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS Review (
 CREATE TRIGGER IF NOT EXISTS subtract_copies_after_loan
 AFTER INSERT ON Loan FOR EACH ROW
 	UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
-    SET b.Copies = b.Copies - 1 
+    SET b.Copies = b.Copies - 1
     WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
 
 DELIMITER //
@@ -147,7 +147,7 @@ CREATE TRIGGER IF NOT EXISTS add_copy_after_return
 AFTER UPDATE ON Loan FOR EACH ROW
     IF NEW.Status = 'RETURNED' AND OLD.Status <> 'RETURNED' THEN
         UPDATE Book_Copies b INNER JOIN User u ON u.User_id = NEW.User_id
-        SET b.Copies = b.Copies - 1 
+        SET b.Copies = b.Copies - 1
         WHERE b.Book_id = NEW.Book_id AND b.School_id = u.School_id;
     END IF;
 //

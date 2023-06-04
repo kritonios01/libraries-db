@@ -2,7 +2,7 @@
 <html lang="en" data-bs-theme="auto">
   <head>
     <script src="js/color-modes.js"></script> <!-- makes light-dark mode working -->
-    
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -212,7 +212,7 @@
     <div class="row py-lg-3">
       <div class="col-lg-6 col-md-8 mx-auto">
         <h1 class="fw-light">Books in the Library</h1>
-        <p class="lead text-body-secondary">Here you can see all the books which are available in your school library. Feel free to check them out!</p>  
+        <p class="lead text-body-secondary">Here you can see all the books which are available in your school library. Feel free to check them out!</p>
       </div>
     </div>
   </section>
@@ -228,12 +228,26 @@
               <div class="card-body">
                 <h5 class="card-title"><%=books[i].Title%></h5>
                 <h6 class="card-subtitle mb-2 text-body-secondary"><%=books[i].Authors%></h6>
-                <h6 class="card-subtitle mb-2 text-body-secondary"><%=books[i].Categories%></h6>
                 <p class="card-text"><%=books[i].Summary%></p>
                 <div class="d-flex justify-content-between align-items-center">
                   <small class="text-body-secondary"><%=books[i].Copies%> available</small>
                   <button type="button" class="btn btn-primary">Rent</button>
                 </div>
+              </div>
+              <div class="card-footer">
+                <small class="text-body-secondary"><%=books[i].Pages%> pages</small>
+                <hr style="margin: 0.25rem">
+                <small class="fw-bold">Language: </small>
+                <small class="text-body-secondary"><%=books[i].Language%></small>
+                <hr style="margin: 0.25rem">
+                <small class="fw-bold">Categories: </small>
+                <small class="text-body-secondary"><%=books[i].Categories%></small>
+                <hr style="margin: 0.25rem">
+                <small class="fw-bold">Keywords: </small>
+                <small class="text-body-secondary"><%=books[i].Keywords%></small>
+                <hr style="margin: 0.25rem">
+                <small class="fw-bold">ISBN: </small>
+                <small class="text-body-secondary"><%=books[i].ISBN%></small>
               </div>
             </div>
           </div>
@@ -241,7 +255,7 @@
       </div>
     </div>
   </div>
-
+<!-- menei na fainontai kai ratings-reviews -->
 </main>
 
 
@@ -258,6 +272,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
 
-      
+
   </body>
 </html>
