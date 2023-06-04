@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.112.5">
-    <title>Sign in Failure</title>
+    <title>Results</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/jumbotron/">
 
@@ -162,9 +162,17 @@
 
     <div class="p-5 mb-4 bg-body-tertiary rounded-3">
       <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">Sign in failed!</h1>
-        <p class="col-md-8 fs-4"><%=message%></p>
-        <a class="btn btn-primary btn-lg" type="button" href="/signin">Try again</a>
+        <h1 class="display-5 fw-bold">Query Results</h1>
+        <p class="col-md-8 fs-4"><%= message %></p>
+        <ul class="list-group mb-4">
+            <% for(var i=0; i<total_items; i++) { %>
+            <li class="list-group-item d-flex justify-content-between">
+                <label><%= items[i].School_Name %></label>
+                <label><%= items[i].Total_Loans %></label>
+            </li>
+            <% } %>
+          </ul>
+        <a class="btn btn-primary btn-lg" type="button" href="/dashboard">Go back</a>
       </div>
     </div>
 

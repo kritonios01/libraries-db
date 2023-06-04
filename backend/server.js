@@ -104,8 +104,8 @@ passport.deserializeUser((user, done) => {
 /* ------------------------------------------------------------------------------------------- */
 //Routes
 app.get('/', (req, res) => { //home route
-    //if(req.user) console.log(req.user);
-    res.sendFile(`${root_path}/frontend/index.html`);
+    if(req.user)  req.logout(err => { if (err) console.log('Error signing out!'); });
+    res.render('home', { user: req.user });
 });
 
 app.get('/dashboard', async (req, res) => {
@@ -228,7 +228,7 @@ app.get('/books', async (req, res) => { //show books
         let conn;
         try {
             conn = await pool.getConnection();
-            let books = await conn.query("SELECT * FROM Books_Summary WHERE School_id = ?", [req.user.school]);
+            let books = await conn.query("SELECT * FROM Books_summary WHERE School_id = ?", [req.user.school]);
             for (var book of books) {
                 if (book.Image === null) book.Image = emptyCover.toString('base64');
             }
@@ -303,7 +303,8 @@ app.get('/signin', (req, res) => { //get signin page
 app.post('/signin',
     passport.authenticate('local', { failureRedirect: '/signinf', failureMessage: true }),
     (req, res) => {
-        res.redirect('/');
+        if (req.user.Usertype === 'Admin' || req.user.Usertype === 'Library Operator') res.redirect('/dashboard')
+        else res.redirect('/books');
     }
 );
 
@@ -329,7 +330,26 @@ app.get('/signinf', (req, res) => {
     else res.render('signinf', { message: '' });
 });
 
-
+/* --------------------------------------------------------------------------------------------------------------------------------------------- */
+// Admin Queries Routes
+app.get('/admin-loans', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let school_loans = await conn.query("SELECT * FROM Loans_per_school");
+            conn.end();
+            res.render('admin-queries', { message:'View loans per school', items: school_loans, total_items: Object.keys(school_loans).length})
+        } catch (err) {
+            console.log('DB Error');
+            res.redirect('/dashboard');
+        } finally {
+            if (conn) return conn.end();
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
 
 
 
