@@ -7,7 +7,7 @@ VALUES
 
 
 
-SET @password = '123456789';
+SET @password = '$2b$10$5l3A31dNZDhuMRhLalHvb.7EzTmiGhKrMDbW9Zyj/xdBAYqfK25Zy';
 
 INSERT INTO User (Username, Password, Name, Age, Usertype, School_id)
 VALUES
@@ -79,7 +79,7 @@ VALUES
 ('operator2', @password, 'Jessica Rodriguez', 35, 'Library Operator', 2),
 ('operator3', @password, 'Christopher Martinez', 31, 'Library Operator', 3),
 ('operator4', @password, 'Amanda Thompson', 26, 'Library Operator', 4),
-('director', @password, 'John Smith', 90, 'Admin', 1);
+('admin', @password, 'John Smith', 90, 'Admin', null);
 
 
 
@@ -265,6 +265,19 @@ INSERT INTO Category (Category) VALUES
     ('Travel'),
     ('True Crime'),
     ('Western');
+
+INSERT INTO Keyword (Keyword) VALUES
+    ('Educational');
+
+DELIMITER //
+FOR i IN 1..137
+DO
+    INSERT INTO Book_keywords (Book_id, Keyword_id) VALUES (i, 1);
+END FOR;
+//
+DELIMITER ;
+
+
 
 
 

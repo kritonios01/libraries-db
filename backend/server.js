@@ -89,7 +89,8 @@ passport.serializeUser((user, done) => {
             username: user.Username,
             name: user.Name,
             age: user.Age,
-            type: user.Usertype
+            type: user.Usertype,
+            school: user.School_id
         });
     });
 });
@@ -107,17 +108,34 @@ app.get('/', (req, res) => { //home route
     res.sendFile(`${root_path}/frontend/index.html`);
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', async (req, res) => {
     if (req.user) {
+        let conn;
+        let school;
+        try {
+            conn = await pool.getConnection();
+            school = await conn.query("SELECT (Name) FROM School WHERE School_id = ?", [req.user.school]);
+        } catch (err) {
+            console.log('DB Error');
+        } finally {
+            if (conn) conn.end();
+        }
+
         switch (req.user.type) {
             case 'Admin':
-                res.render('admin', { user:req.user });
+                res.render('admin', { user: req.user });
+                break;
+            case 'Library Operator':
+                res.render('library_op', { user: req.user, school: school[0].Name });
                 break;
             case 'Student':
-                res.render();
+                res.render('student', { user: req.user, school: school[0].Name });
                 break;
             case 'Teacher':
-                res.render();
+                res.render('teacher', { user: req.user, school: school[0].Name });
+                break;
+            case 'Director':
+                res.render('teacher', { user: req.user, school: school[0].Name });
                 break;
         }
     } else {
@@ -127,12 +145,12 @@ app.get('/dashboard', (req, res) => {
 });
 
 app.get('/dashboardf', (req, res) => {
-    if(req.session.messages) res.render('dashboardf', { message: req.session.messages.pop() });
+    if (req.session.messages) res.render('dashboardf', { message: req.session.messages.pop() });
     else res.render('dashboardf', { message: '' });
 });
 
 app.get('/dashboardsuc', (req, res) => {
-    if(req.session.messages) res.render('dashboardsuc', { message: req.session.messages.pop() });
+    if (req.session.messages) res.render('dashboardsuc', { message: req.session.messages.pop() });
     else res.render('dashboardsuc', { message: '' });
 });
 
@@ -159,6 +177,29 @@ app.post('/password', async (req, res) => {
     });
 });
 
+app.post('/user-data', async (req, res) => {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        await conn.query("UPDATE User SET Username = ? WHERE Username = ?", [req.body.username, req.user.username]);
+        conn.end();
+        req.logout(err => {
+            if (err) console.log('Error signing out!');
+            else {
+                req.session.messages = ['Username change successful'];
+                res.redirect('/homesuc');
+            }
+        });
+    } catch (err) {
+        if (conn) {
+            console.log('DB Query Error');
+            conn.end();
+        }
+        req.session.messages = ['Username not changed!'];
+        res.redirect('/dashboardf');
+    }
+});
+
 app.get('/dbbackup', async (req, res) => {
     if (req.isAuthenticated() && req.user.type === 'Admin') {
         await mysqldump({
@@ -170,7 +211,7 @@ app.get('/dbbackup', async (req, res) => {
             },
             dumpToFile: `${root_path}/backups/backup.sql`,
         });
-        res.download(`${root_path}/backups/backup.sql`);  
+        res.download(`${root_path}/backups/backup.sql`);
     } else {
         res.redirect('/');
     }
@@ -178,12 +219,20 @@ app.get('/dbbackup', async (req, res) => {
 
 app.get('/books', async (req, res) => { //show books 
     let emptyCover = fs.readFileSync(`${root_path}/frontend/public/images/no-book-cover.jpg`);
-
-
+//prepei na ginei authentication tou user
     let conn;
     try {
         conn = await pool.getConnection();
-        let books = await conn.query("SELECT * FROM Book");
+        //let books = await conn.query("SELECT * FROM Book");
+        // let books = await conn.query("SELECT Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies " + 
+        //                              "FROM Book " + 
+        //                              "INNER JOIN Book_Copies " + 
+        //                                 "ON Book.Book_id = Book_Copies.Book_id " +
+        //                              "INNER JOIN Book_Authors " + 
+        //                                 "ON Book.Book_id = Book_authors.Book_id " +
+        //                              "WHERE Book_Copies.School_id = ?", [req.user.school]);
+        let books = await conn.query("SELECT * FROM Books_Summary WHERE School_id = ?", [req.user.school]);
+        console.log(books);
 
         for (var book of books) {
             if (book.Image === null) book.Image = emptyCover.toString('base64');
@@ -227,7 +276,7 @@ app.post('/addBook', upload.single('image'), async (req, res) => { //submit form
         let books = await conn.query(
             "INSERT INTO Book(Title, Publisher, ISBN, Author, Pages, Summary, Copies, Image, Category, Language, Keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             data);
-        res.redirect('/success');
+        res.redirect('/homesuc');
     } catch (err) {
         console.log('DB Error');
         res.redirect('/addBookf');
@@ -240,8 +289,9 @@ app.get('/addBookf', (req, res) => { //get failure page for adding book
     res.sendFile(`${root_path}/frontend/addBookf.html`);
 });
 
-app.get('/success', (req, res) => { //get success page
-    res.sendFile(`${root_path}/frontend/success.html`);
+app.get('/homesuc', (req, res) => { //get success page
+    if (req.session.messages) res.render('homesuc', { message: req.session.messages.pop() });
+    else res.render('homesuc', { message: '' });
 });
 
 
@@ -277,7 +327,7 @@ app.get('/signup', (req, res) => { //get signup page
 // });
 
 app.get('/signinf', (req, res) => {
-    if(req.session.messages) res.render('signinf', { message: req.session.messages.pop() });
+    if (req.session.messages) res.render('signinf', { message: req.session.messages.pop() });
     else res.render('signinf', { message: '' });
 });
 

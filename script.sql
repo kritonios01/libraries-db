@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS User (
 CREATE TABLE IF NOT EXISTS Book (
 	Book_id INT AUTO_INCREMENT,
     Title VARCHAR(80) NOT NULL,
-    Publisher VARCHAR(30) NOT NULL,
+    Publisher VARCHAR(50) NOT NULL,
     ISBN VARCHAR(13) NOT NULL,
     Pages INT(4),
     Summary VARCHAR(1000),
@@ -167,3 +167,17 @@ DO
         SET l.Status = 'LATE';
         WHERE L.Due_date > GETDATE() AND l.Status = 'BORROWED';
     END;*/
+
+-- DROP VIEW Books_Summary;
+
+CREATE VIEW Books_Summary AS
+SELECT Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
+FROM Book
+JOIN Book_Copies ON Book.Book_id = Book_Copies.Book_id
+JOIN Book_authors ON Book.Book_id = Book_authors.Book_id
+JOIN Author ON Book_authors.Author_id = Author.Author_id
+JOIN Book_categories ON Book.Book_id = Book_categories.Book_id
+JOIN Category ON Book_categories.Category_id = Category.Category_id
+JOIN Book_keywords ON Book.Book_id = Book_keywords.Book_id
+JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
+GROUP BY Book.Book_id, Book_Copies.School_id;
