@@ -109,6 +109,9 @@ ON Author(Author);
 CREATE INDEX IF NOT EXISTS categorysearch_idx
 ON Category(Category); 
 
+CREATE INDEX IF NOT EXISTS usersearch_idx
+ON User(Username, Password);
+
 CREATE TABLE IF NOT EXISTS Loan (
 	Loan_id INT AUTO_INCREMENT,
     Date_out DATE,
@@ -204,7 +207,9 @@ DO
 //
 DELIMITER ;
 
-CREATE VIEW IF NOT EXISTS Books_Summary AS
+-- VIEWS FOR COMMON SERVER QUERIES
+
+CREATE VIEW IF NOT EXISTS Books_summary AS
 SELECT Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
 FROM Book
 JOIN Book_Copies ON Book.Book_id = Book_Copies.Book_id
@@ -215,3 +220,10 @@ JOIN Category ON Book_categories.Category_id = Category.Category_id
 JOIN Book_keywords ON Book.Book_id = Book_keywords.Book_id
 JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
 GROUP BY Book.Book_id, Book_Copies.School_id;
+
+CREATE VIEW IF NOT EXISTS Loans_per_school AS
+SELECT s.School_id, s.Name AS School_Name, COUNT(*) AS Total_Loans
+FROM Loan l
+JOIN User u ON u.User_id = l.User_id
+JOIN School s ON s.School_id = u.School_id
+GROUP BY s.School_id, s.Name;
