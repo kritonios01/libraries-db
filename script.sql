@@ -104,7 +104,7 @@ CREATE INDEX IF NOT EXISTS usersearch_idx
 ON User(Username, Password);
 
 CREATE INDEX IF NOT EXISTS authorsearch_idx
-ON Author(Author); 
+ON Author(Name); 
 
 CREATE INDEX IF NOT EXISTS categorysearch_idx
 ON Category(Category); 
