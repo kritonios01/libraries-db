@@ -223,22 +223,32 @@ JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
 GROUP BY Book.Book_id, Book_Copies.School_id;
 
 -- QUERY 1
-/* CREATE VIEW IF NOT EXISTS Loans_per_school AS
-SELECT s.School_id, s.Name AS School_Name, COUNT(*) AS Total_Loans
-FROM Loan l
-JOIN User u ON u.User_id = l.User_id
-JOIN School s ON s.School_id = u.School_id
-GROUP BY s.School_id, s.Name; */
 
 CREATE VIEW IF NOT EXISTS LoansPerMonth AS
-SELECT s.Name AS SchoolName, YEAR(l.Date_out) AS LoanYear, MONTH(l.Date_out) AS LoanMonth, COUNT(l.Loan_id) AS TotalLoans
+SELECT s.Name AS School_Name, YEAR(l.Date_out) AS Loan_Year, MONTH(l.Date_out) AS Loan_Month, COUNT(l.Loan_id) AS Total_Loans
 FROM Loan l
 JOIN User u ON l.User_id = u.User_id
 JOIN School s ON u.School_id = s.School_id
-GROUP BY s.School_id, LoanYear, LoanMonth
+GROUP BY s.School_id, Loan_Year, Loan_Month;
 
-SELECT SchoolName, SUM(TotalLoans) AS TotalLoans
-FROM LoansPerMonth
-GROUP BY SchoolName
-ORDER BY SchoolName
-GROUP BY s.School_id, s.Name;
+--  QUERY 2.1
+
+CREATE VIEW IF NOT EXISTS CategoryAuthors AS
+SELECT C.Category, Group_Concat(A.Name SEPARATOR ', ') AS Authors FROM
+Category C
+JOIN Book_categories BC ON C.Category_id = BC.Category_id
+JOIN Book_authors BA ON BC.Book_id = BA.Book_id
+JOIN Author A ON A.Author_id = BA.Author_id
+GROUP BY C.Category_id;
+
+-- QUERY 2.2
+
+CREATE VIEW IF NOT EXISTS CategoryTeachers AS
+SELECT C.Category, Group_Concat(T.Name SEPARATOR ', ') AS Teachers FROM
+Category C
+JOIN Book_categories BC ON C.Category_id = BC.Category_id
+JOIN Loan L ON BC.Book_id = L.Book_id
+JOIN User T ON T.User_id = L.User_id
+WHERE T.Usertype = 'Teacher'
+AND DATE_ADD(L.Date_Out, INTERVAL 1 YEAR) > CURDATE()
+GROUP BY C.Category_id;

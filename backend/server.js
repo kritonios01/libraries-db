@@ -207,7 +207,7 @@ app.get('/dbbackup', async (req, res) => {
                 host: 'localhost',
                 user: 'root',
                 password: '',
-                database: schema,
+                database: schema
             },
             dumpToFile: `${root_path}/backups/backup.sql`,
         });
@@ -332,37 +332,32 @@ app.get('/signinf', (req, res) => {
 
 /* --------------------------------------------------------------------------------------------------------------------------------------------- */
 // Admin Queries Routes
-app.get('/admin-loans', async (req, res) => {
-    if (req.isAuthenticated() && req.user.type === 'Admin') {
-        let conn;
-        try {
-            conn = await pool.getConnection();
-            let school_loans = await conn.query("SELECT * FROM Loans_per_school");
-            conn.end();
-            res.render('admin-queries', { message:'View loans per school', items: school_loans, total_items: Object.keys(school_loans).length})
-        } catch (err) {
-            console.log('DB Error');
-            res.redirect('/dashboard');
-        } finally {
-            if (conn) return conn.end();
-        }
-    } else {
-        res.send('You are not authorized to view this content');
-    }
-});
 
 app.post('/admin-loans', async (req, res) => {
-    console.log(req.body);
     if (req.isAuthenticated() && req.user.type === 'Admin') {
-
         let conn;
         try {
             conn = await pool.getConnection();
             let school_loans;
-            if (req.body.my === '') school_loans = await conn.query("SELECT * FROM Loans_per_school");
-            else school_loans = await conn.query("SELECT * FROM Loans_per_school");
+            if (req.body.my === '') {
+                school_loans = await conn.query("SELECT School_Name, SUM(Total_Loans) AS Total_Loans " +
+                                                                    "FROM LoansPerMonth " +
+                                                                    "GROUP BY School_Name " +
+                                                                    "ORDER BY School_Name");
+            } else {
+                const [year, month] = req.body.my.split('-');
+                console.log(year, month)
+                school_loans = await conn.query("SELECT * FROM LoansPerMonth WHERE Loan_Year = ? AND Loan_Month = ?", [ year, month ]);
+            }
             conn.end();
-            res.render('admin-queries', { message:'View loans per school', items: school_loans, total_items: Object.keys(school_loans).length})
+            console.log(school_loans);
+            let school_names = [];
+            let loans = [];
+            for (item of school_loans) {
+                school_names.push(item.School_Name);
+                loans.push(item.Total_Loans)
+            }
+            res.render('admin-queries', { message:'View loans per school', left_items: school_names, right_items: loans, total_items: Object.keys(school_loans).length})
         } catch (err) {
             console.log('DB Error');
             res.redirect('/dashboard');
@@ -374,6 +369,55 @@ app.post('/admin-loans', async (req, res) => {
     }
 });
 
+app.post('/admin-author-categories', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM CategoryAuthors WHERE Category = ?", [ req.body.category]);
+            conn.end();
+            // for (item of data) {
+            //     school_names.push(item.School_Name);
+            //     loans.push(item.Total_Loans)
+            // }
+            //console.log(data[0]);
+            res.render('admin-queries', { message:'View authors per category', left_items: [data[0].Category], right_items: [data[0].Authors], total_items: Object.keys(data).length})
+        } catch (err) {
+            console.log('DB Error');
+            res.redirect('/dashboard');
+        } finally {
+            if (conn) return conn.end();
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
+
+app.post('/admin-teacher-categories', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM CategoryTeachers WHERE Category = ?", [ req.body.category]);
+            conn.end();
+
+            let length = Object.keys(data).length;
+            if(length === 0) {
+                res.render('admin-queries', { message: `No teachers have rented books this year in the category ${req.body.category}`, left_items: '', right_items: '', total_items: length});
+            } else {
+                res.render('admin-queries', { message:'View teachers who have rented books this year per category', left_items: [data[0].Category], right_items: [data[0].Teachers], total_items: length});
+            }
+        } catch (err) {
+            console.log('DB Error');
+            console.log(err);
+            res.redirect('/dashboard');
+        } finally {
+            if (conn) return conn.end();
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
 
 
 
