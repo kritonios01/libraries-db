@@ -223,7 +223,6 @@ JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
 GROUP BY Book.Book_id, Book_Copies.School_id;
 
 -- QUERY 1
-
 CREATE VIEW IF NOT EXISTS LoansPerMonth AS
 SELECT s.Name AS School_Name, YEAR(l.Date_out) AS Loan_Year, MONTH(l.Date_out) AS Loan_Month, COUNT(l.Loan_id) AS Total_Loans
 FROM Loan l
@@ -232,7 +231,6 @@ JOIN School s ON u.School_id = s.School_id
 GROUP BY s.School_id, Loan_Year, Loan_Month;
 
 --  QUERY 2.1
-
 CREATE VIEW IF NOT EXISTS CategoryAuthors AS
 SELECT C.Category, Group_Concat(A.Name SEPARATOR ', ') AS Authors FROM
 Category C
@@ -242,7 +240,6 @@ JOIN Author A ON A.Author_id = BA.Author_id
 GROUP BY C.Category_id;
 
 -- QUERY 2.2
-
 CREATE VIEW IF NOT EXISTS CategoryTeachers AS
 SELECT C.Category, Group_Concat(T.Name SEPARATOR ', ') AS Teachers FROM
 Category C
@@ -252,3 +249,69 @@ JOIN User T ON T.User_id = L.User_id
 WHERE T.Usertype = 'Teacher'
 AND DATE_ADD(L.Date_Out, INTERVAL 1 YEAR) > CURDATE()
 GROUP BY C.Category_id;
+
+-- QUERY 3
+CREATE VIEW IF NOT EXISTS YoungTeachers AS
+SELECT U.Name AS Teachers, COUNT(*) AS NumBooksBorrowed
+FROM User U
+JOIN Loan L ON U.User_id = L.User_id
+WHERE U.Usertype = 'Teacher' AND U.Age < 40
+GROUP BY U.User_id
+HAVING COUNT(*) = (
+  SELECT COUNT(*) 
+  FROM Loan l JOIN User u ON l.User_id = u.User_id
+  WHERE u.Usertype = 'Teacher' AND u.Age < 40
+  GROUP BY u.User_id 
+  ORDER BY COUNT(*) DESC 
+  LIMIT 1
+);
+
+-- QUERY 4
+CREATE VIEW IF NOT EXISTS AuthorWithoutLoans AS
+SELECT DISTINCT A.Name AS AuthorName
+FROM Author A
+EXCEPT
+SELECT DISTINCT A.Name AS AuthorName
+FROM Author A
+JOIN Book_authors BA ON A.Author_id = BA.Author_id
+JOIN Loan L ON BA.Book_id = L.Book_id;
+
+-- QUERY 5
+CREATE VIEW IF NOT EXISTS Operators20Loans AS
+SELECT GROUP_CONCAT(Name SEPARATOR ', ') AS Operators, LoanedBooks FROM (
+SELECT OP.Name, COUNT(*) As LoanedBooks
+FROM User OP
+JOIN User U ON U.School_id = OP.School_id
+JOIN Loan L ON L.User_id = U.User_id
+WHERE OP.Usertype = 'Library Operator'
+  AND DATE_ADD(L.Date_Out, INTERVAL 1 YEAR) > CURDATE()
+GROUP BY OP.Name) AS SUBQUERY
+WHERE LoanedBooks > 20
+GROUP BY LoanedBooks;
+
+-- QUERY 6
+CREATE VIEW IF NOT EXISTS Top3pairs AS
+SELECT C1.Category AS Category1, C2.Category AS Category2, COUNT(*) AS Borrowings
+FROM Loan L
+JOIN Book_categories BC1 ON BC1.Book_id = L.Book_id
+JOIN Book_categories BC2 ON BC2.Book_id = L.Book_id
+JOIN Category C1 ON C1.Category_id = BC1.Category_id
+JOIN Category C2 ON C2.Category_id = BC2.Category_id
+WHERE C1.Category_id < C2.Category_id
+GROUP BY C1.Category, C2.Category
+ORDER BY COUNT(*) DESC
+LIMIT 3;
+
+-- QUERY 7
+CREATE VIEW IF NOT EXISTS AuthorsFewBooks AS
+SELECT A.Name AS Authors
+FROM Author A
+JOIN Book_authors BA ON BA.Author_id = A.Author_id 
+GROUP BY A.Author_id
+HAVING COUNT(*) + 4 < 
+  (SELECT COUNT(*)
+   FROM Author A2
+   JOIN Book_authors BA2 ON BA2.Author_id = A2.Author_id 
+   GROUP BY A2.Author_id
+   ORDER BY COUNT(*) DESC
+   LIMIT 1);

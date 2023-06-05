@@ -15,3 +15,8 @@ DROP VIEW IF EXISTS Books_Summary;
 DROP VIEW IF EXISTS LoansPerMonth;
 DROP VIEW IF EXISTS CategoryAuthors;
 DROP VIEW IF EXISTS CategoryTeachers;
+DROP VIEW IF EXISTS YoungTeachers;
+DROP VIEW IF EXISTS AuthorWithoutLoans;
+DROP VIEW IF EXISTS Operators20Loans;
+DROP VIEW IF EXISTS Top3pairs;
+DROP VIEW IF EXISTS AuthorsFewBooks;

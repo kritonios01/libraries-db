@@ -145,13 +145,13 @@ app.get('/dashboard', async (req, res) => {
 });
 
 app.get('/dashboardf', (req, res) => {
-    if (req.session.messages) res.render('dashboardf', { message: req.session.messages.pop() });
-    else res.render('dashboardf', { message: '' });
+    if (req.session.messages) res.render('dashboardf', { message: req.session.messages.pop(), user: req.user });
+    else res.render('dashboardf', { message: '', user: req.user });
 });
 
 app.get('/dashboardsuc', (req, res) => {
-    if (req.session.messages) res.render('dashboardsuc', { message: req.session.messages.pop() });
-    else res.render('dashboardsuc', { message: '' });
+    if (req.session.messages) res.render('dashboardsuc', { message: req.session.messages.pop(), user: req.user});
+    else res.render('dashboardsuc', { message: '', user: req.user });
 });
 
 app.post('/password', async (req, res) => {
@@ -288,8 +288,8 @@ app.get('/addBookf', (req, res) => { //get failure page for adding book
 });
 
 app.get('/homesuc', (req, res) => { //get success page
-    if (req.session.messages) res.render('homesuc', { message: req.session.messages.pop() });
-    else res.render('homesuc', { message: '' });
+    if (req.session.messages) res.render('homesuc', { message: req.session.messages.pop(), user: req.user });
+    else res.render('homesuc', { message: '', user: req.user });
 });
 
 
@@ -326,13 +326,14 @@ app.get('/signup', (req, res) => { //get signup page
 // });
 
 app.get('/signinf', (req, res) => {
-    if (req.session.messages) res.render('signinf', { message: req.session.messages.pop() });
-    else res.render('signinf', { message: '' });
+    if (req.session.messages) res.render('signinf', { message: req.session.messages.pop(), user:req.user });
+    else res.render('signinf', { message: '', user:  req.user });
 });
 
 /* --------------------------------------------------------------------------------------------------------------------------------------------- */
 // Admin Queries Routes
 
+//Request 1: Total  Loans per school
 app.post('/admin-loans', async (req, res) => {
     if (req.isAuthenticated() && req.user.type === 'Admin') {
         let conn;
@@ -346,79 +347,220 @@ app.post('/admin-loans', async (req, res) => {
                                                                     "ORDER BY School_Name");
             } else {
                 const [year, month] = req.body.my.split('-');
-                console.log(year, month)
                 school_loans = await conn.query("SELECT * FROM LoansPerMonth WHERE Loan_Year = ? AND Loan_Month = ?", [ year, month ]);
             }
             conn.end();
-            console.log(school_loans);
             let school_names = [];
             let loans = [];
             for (item of school_loans) {
                 school_names.push(item.School_Name);
                 loans.push(item.Total_Loans)
             }
-            res.render('admin-queries', { message:'View loans per school', left_items: school_names, right_items: loans, total_items: Object.keys(school_loans).length})
+            res.render('admin-queries', { message:'View loans per school', left_items: school_names, right_items: loans, total_items: Object.keys(school_loans).length, user: req.user})
         } catch (err) {
             console.log('DB Error');
+            if (conn) conn.end();
             res.redirect('/dashboard');
-        } finally {
-            if (conn) return conn.end();
         }
     } else {
         res.send('You are not authorized to view this content');
     }
 });
 
+//Request 2.1: Authors belonging to a category
 app.post('/admin-author-categories', async (req, res) => {
     if (req.isAuthenticated() && req.user.type === 'Admin') {
         let conn;
         try {
             conn = await pool.getConnection();
-            let data =  await conn.query("SELECT * FROM CategoryAuthors WHERE Category = ?", [ req.body.category]);
+            let data =  await conn.query("SELECT * FROM CategoryAuthors WHERE Category = ?", [ req.body.category ]);
             conn.end();
-            // for (item of data) {
-            //     school_names.push(item.School_Name);
-            //     loans.push(item.Total_Loans)
-            // }
-            //console.log(data[0]);
-            res.render('admin-queries', { message:'View authors per category', left_items: [data[0].Category], right_items: [data[0].Authors], total_items: Object.keys(data).length})
+
+            let length = Object.keys(data).length;
+            if(length === 0){
+                res.render('admin-queries', { message:'No authors in this category', left_items: '', right_items: '', total_items: length, user: req.user});
+            } else {
+                res.render('admin-queries', { message:'View authors per category', left_items: [data[0].Category], right_items: [data[0].Authors], total_items: length, user: req.user});
+            }
         } catch (err) {
             console.log('DB Error');
+            if (conn) conn.end();
             res.redirect('/dashboard');
-        } finally {
-            if (conn) return conn.end();
         }
     } else {
         res.send('You are not authorized to view this content');
     }
 });
 
+//Request 2.2: Teachers who have rented books of a category the last year
 app.post('/admin-teacher-categories', async (req, res) => {
     if (req.isAuthenticated() && req.user.type === 'Admin') {
         let conn;
         try {
             conn = await pool.getConnection();
-            let data =  await conn.query("SELECT * FROM CategoryTeachers WHERE Category = ?", [ req.body.category]);
+            let data =  await conn.query("SELECT * FROM CategoryTeachers WHERE Category = ?", [ req.body.category ]);
             conn.end();
 
             let length = Object.keys(data).length;
             if(length === 0) {
-                res.render('admin-queries', { message: `No teachers have rented books this year in the category ${req.body.category}`, left_items: '', right_items: '', total_items: length});
+                res.render('admin-queries', { message: `No teachers have rented books this year in the category ${req.body.category}`, left_items: '', right_items: '', total_items: length, user: req.user});
             } else {
-                res.render('admin-queries', { message:'View teachers who have rented books this year per category', left_items: [data[0].Category], right_items: [data[0].Teachers], total_items: length});
+                res.render('admin-queries', { message: 'View teachers who have rented books this year per category', left_items: [data[0].Category], right_items: [data[0].Teachers], total_items: length, user: req.user});
             }
         } catch (err) {
             console.log('DB Error');
-            console.log(err);
+            if (conn) conn.end();
             res.redirect('/dashboard');
-        } finally {
-            if (conn) return conn.end();
         }
     } else {
         res.send('You are not authorized to view this content');
     }
 });
 
+//Request 3: 
+app.get('/admin-young-teachers', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM YoungTeachers");
+            conn.end();
+
+            let teachers = [];
+            for (item of data) teachers.push(item.Teachers);
+            let teachers_str = teachers.join(', ');
+
+            if(Object.keys(data).length === 0) {
+                res.render('admin-queries', { message: `No teachers have rented books yet`, left_items: '', right_items: '', total_items: 0, user: req.user});
+            } else {
+                res.render('admin-queries', { message: 'View the young (<40) teachers who have rented the most books', left_items: [teachers_str], right_items: [data[0].NumBooksBorrowed], total_items: 1, user: req.user});
+            }
+        } catch (err) {
+            console.log('DB Error');
+            if (conn) conn.end();
+            res.redirect('/dashboard');
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
+
+//Request 4:
+app.get('/admin-authors-noloans', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM AuthorWithoutLoans");
+            conn.end();
+
+            let authors = []
+            for (item of data) authors.push(item.AuthorName);
+
+            res.render('admin-queries', { message: 'View authors whose books have not been rented yet', left_items: authors, right_items: '', total_items: Object.keys(data).length, user: req.user});
+        } catch (err) {
+            console.log('DB Error');
+            if (conn) conn.end();
+            res.redirect('/dashboard');
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
+
+//Request 5:
+app.get('/admin-ops-20loans', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM Operators20Loans");
+            conn.end();
+
+            let length = Object.keys(data).length;
+            if(length === 0) {
+                res.render('admin-queries', { message: `No operators have approved more than 20 books in the last year`, left_items: '', right_items: '', total_items: 0, user: req.user});
+            } else {
+                let ops = [];
+                let numberBooks =  []
+                for (item of data) {
+                    ops.push(item.Operators);
+                    numberBooks.push(item.LoanedBooks);
+                }
+
+                res.render('admin-queries', { message: 'View operators who have approved more than 20 books in the last year', left_items: ops, right_items: numberBooks, total_items: length, user: req.user});
+            }
+        } catch (err) {
+            console.log('DB Error');
+            if (conn) conn.end();
+            res.redirect('/dashboard');
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
+
+//Request 6
+app.get('/admin-top3-cat', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM Top3pairs");
+            conn.end();
+
+            let length = Object.keys(data).length;
+            if(length === 0) {
+                res.render('admin-queries', { message: `There haven't been enough loans yet`, left_items: '', right_items: '', total_items: 0, user: req.user});
+            } else {
+                let categories = [];
+                let loans =  []
+                for (item of data) {
+                    categories.push(`${item.Category1} - ${item.Category2}`);
+                    loans.push(item.Borrowings);
+                }
+
+                res.render('admin-queries', { message: 'View top-3 category pairs which have appeared in loans', left_items: categories, right_items: loans, total_items: length, user: req.user});
+            }
+        } catch (err) {
+            console.log('DB Error');
+            if (conn) conn.end();
+            res.redirect('/dashboard');
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
+
+//Request 7
+app.get('/admin-5books-less', async (req, res) => {
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let data =  await conn.query("SELECT * FROM AuthorsFewBooks");
+            conn.end();
+
+            let length = Object.keys(data).length;
+            if(length === 0) {
+                res.render('admin-queries', { message: `There are no authors with at least 5 books less than the author with the most books`, left_items: '', right_items: '', total_items: 0, user: req.user});
+            } else {
+                let authors =  []
+                for (item of data) {
+                    authors.push(item.Authors);
+                }
+
+                res.render('admin-queries', { message: 'View authors with at least 5 books less than the author with the most books', left_items: authors, right_items: '', total_items: length, user: req.user});
+            }
+        } catch (err) {
+            console.log('DB Error');
+            if (conn) conn.end();
+            res.redirect('/dashboard');
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
 
 
 
