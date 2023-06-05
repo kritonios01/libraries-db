@@ -368,7 +368,16 @@
           <svg class="bi" width="1em" height="1em"><use xlink:href="#db-fill"/></svg>
         </div>
         <div>
-          <a href="/admin-loans" class="btn btn-primary">View loans per school</a>
+          <h3 class="fs-2 text-body-emphasis">View loans per school</h3>
+          <form action="/admin-loans" method="POST">
+            <div class="input-group input-group-sm mb-3">
+              <span class="input-group-text">Month - Year</span>
+              <input type="month" class="form-control" name="my">
+            </div>
+            <div class="d-flex justify-content-center">
+              <input class="btn btn-primary" type="submit" value="Go!">
+            </div>
+          </form>
         </div>
       </div>
       <div class="col d-flex align-items-center">

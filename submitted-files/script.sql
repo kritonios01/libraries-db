@@ -98,16 +98,16 @@ CREATE TABLE IF NOT EXISTS Book_keywords (
 );
 
 CREATE INDEX IF NOT EXISTS booksearch_idx
-ON Book(Title, ISBN);
+ON Book(Title, ISBN); 
 
 CREATE INDEX IF NOT EXISTS usersearch_idx
 ON User(Username, Password);
 
 CREATE INDEX IF NOT EXISTS authorsearch_idx
-ON Author(Author);
+ON Author(Author); 
 
 CREATE INDEX IF NOT EXISTS categorysearch_idx
-ON Category(Category);
+ON Category(Category); 
 
 CREATE INDEX IF NOT EXISTS usersearch_idx
 ON User(Username, Password);
@@ -207,9 +207,8 @@ DO
 //
 DELIMITER ;
 
--- VIEWS FOR COMMON SERVER QUERIES ---------------------------------
+-- VIEWS FOR COMMON SERVER QUERIES
 
--- GET BOOKS DATA
 CREATE VIEW IF NOT EXISTS Books_summary AS
 SELECT Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
 FROM Book
@@ -222,22 +221,9 @@ JOIN Book_keywords ON Book.Book_id = Book_keywords.Book_id
 JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
 GROUP BY Book.Book_id, Book_Copies.School_id;
 
--- QUERY 1
-/* CREATE VIEW IF NOT EXISTS Loans_per_school AS
+CREATE VIEW IF NOT EXISTS Loans_per_school AS
 SELECT s.School_id, s.Name AS School_Name, COUNT(*) AS Total_Loans
 FROM Loan l
 JOIN User u ON u.User_id = l.User_id
 JOIN School s ON s.School_id = u.School_id
-GROUP BY s.School_id, s.Name; */
-
-CREATE VIEW IF NOT EXISTS LoansPerMonth AS
-SELECT s.Name AS SchoolName, YEAR(l.Date_out) AS LoanYear, MONTH(l.Date_out) AS LoanMonth, COUNT(l.Loan_id) AS TotalLoans
-FROM Loan l
-JOIN User u ON l.User_id = u.User_id
-JOIN School s ON u.School_id = s.School_id
-GROUP BY s.School_id, LoanYear, LoanMonth
-
-SELECT SchoolName, SUM(TotalLoans) AS TotalLoans
-FROM LoansPerMonth
-GROUP BY SchoolName
-ORDER BY SchoolName
+GROUP BY s.School_id, s.Name;

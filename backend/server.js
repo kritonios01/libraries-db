@@ -351,6 +351,29 @@ app.get('/admin-loans', async (req, res) => {
     }
 });
 
+app.post('/admin-loans', async (req, res) => {
+    console.log(req.body);
+    if (req.isAuthenticated() && req.user.type === 'Admin') {
+
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let school_loans;
+            if (req.body.my === '') school_loans = await conn.query("SELECT * FROM Loans_per_school");
+            else school_loans = await conn.query("SELECT * FROM Loans_per_school");
+            conn.end();
+            res.render('admin-queries', { message:'View loans per school', items: school_loans, total_items: Object.keys(school_loans).length})
+        } catch (err) {
+            console.log('DB Error');
+            res.redirect('/dashboard');
+        } finally {
+            if (conn) return conn.end();
+        }
+    } else {
+        res.send('You are not authorized to view this content');
+    }
+});
+
 
 
 
