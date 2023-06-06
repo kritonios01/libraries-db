@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Book (
     Title VARCHAR(80) NOT NULL,
     Publisher VARCHAR(100) NOT NULL,
     ISBN VARCHAR(13) NOT NULL,
-    Pages INT(4),
+    Pages INT(4) NOT NULL,
     Summary VARCHAR(1000),
     Image MEDIUMBLOB,
     Language ENUM ('Greek', 'English', 'French', 'German', 'Russian', 'Spanish', 'Italian', 'Chinese') NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Book_Copies (
 
 CREATE TABLE IF NOT EXISTS Author (
     Author_id INT AUTO_INCREMENT,
-    Name VARCHAR(50) NOT NULL,
+    Name VARCHAR(50) UNIQUE NOT NULL,
     PRIMARY KEY(Author_id)
 );
 
@@ -211,15 +211,15 @@ DELIMITER ;
 
 -- GET BOOKS DATA
 CREATE VIEW IF NOT EXISTS Books_summary AS
-SELECT Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
+SELECT Book.Book_id, Book_Copies.School_id, Book.Title, Book.Publisher, Book.ISBN, Book.Pages, Book.Summary, Book.Image, Book.Language, Book_Copies.Copies, GROUP_CONCAT(DISTINCT Author.Name SEPARATOR ', ') AS Authors, GROUP_CONCAT(DISTINCT Category.Category SEPARATOR ', ') AS Categories, GROUP_CONCAT(DISTINCT Keyword.Keyword SEPARATOR ', ') AS Keywords
 FROM Book
 JOIN Book_Copies ON Book.Book_id = Book_Copies.Book_id
 JOIN Book_authors ON Book.Book_id = Book_authors.Book_id
 JOIN Author ON Book_authors.Author_id = Author.Author_id
-JOIN Book_categories ON Book.Book_id = Book_categories.Book_id
-JOIN Category ON Book_categories.Category_id = Category.Category_id
-JOIN Book_keywords ON Book.Book_id = Book_keywords.Book_id
-JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
+LEFT JOIN Book_categories ON Book.Book_id = Book_categories.Book_id
+LEFT JOIN Category ON Book_categories.Category_id = Category.Category_id
+LEFT JOIN Book_keywords ON Book.Book_id = Book_keywords.Book_id
+LEFT JOIN Keyword ON Book_keywords.Keyword_id = Keyword.Keyword_id
 GROUP BY Book.Book_id, Book_Copies.School_id;
 
 -- QUERY 1
@@ -315,3 +315,39 @@ HAVING COUNT(*) + 4 <
    GROUP BY A2.Author_id
    ORDER BY COUNT(*) DESC
    LIMIT 1);
+
+
+
+
+
+-- LIB_OP VIEW LOAN REQUESTS
+CREATE VIEW IF NOT EXISTS LoanRequests AS
+SELECT Loan.Loan_id, Loan.Date_out, Loan.Due_date, Loan.Status, Book_Copies.Copies, User.School_id, User.Name, User.Username, Book.Title
+FROM Loan
+JOIN User ON User.User_id = Loan.User_id
+JOIN Book ON Book.Book_id = Loan.Book_id
+JOIN Book_Copies ON Book_Copies.Book_id = Loan.Book_id AND Book_Copies.School_id = User.School_id;
+
+-- LIB_OP VIEW LATE BOOKS
+CREATE VIEW IF NOT EXISTS LateLoans AS
+SELECT U.Name, DATEDIFF(CURDATE(), L.Due_date) AS DelayDays
+FROM User U
+JOIN Loan L ON L.User_id = U.User_id
+WHERE L.Status = 'Late';
+
+-- LIB_OP VIEW AVERAGE RATING PER BORROWER
+CREATE VIEW IF NOT EXISTS AvgBorrower AS
+SELECT U.Name AS Borrower, AVG(R.Rating) AS AverageRating
+FROM Review R
+JOIN User U ON U.User_id = R.User_id
+GROUP BY U.User_id
+ORDER BY U.Name;
+
+-- LIB_OP VIEW AVERAGE RATING PER CATEGORY
+CREATE VIEW IF NOT EXISTS AvgCat AS
+SELECT C.Category, AVG(R.Rating) AS AverageRating
+FROM Review R
+JOIN Book_categories BC ON BC.Book_id = R.Book_id
+JOIN Category C ON C.Category_id = BC.Category_id
+GROUP BY C.Category_id
+ORDER BY C.Category;

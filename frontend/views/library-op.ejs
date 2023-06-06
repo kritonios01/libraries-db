@@ -94,7 +94,7 @@
       }
     </style>
 
-    
+
     <!-- Custom styles for this template -->
     <link href="css/dashboards.css" rel="stylesheet">
   </head>
@@ -152,6 +152,10 @@
       </ul>
     </div>
 
+    <!-- header -->
+    <%- include('header', {user: user}) -%>
+
+
 <!-- My icons -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="db-down" viewBox="0 0 16 16">
@@ -186,15 +190,19 @@
     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
   </symbol>
+  <symbol id="db-fill" viewBox="0 0 16 16">
+    <path d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223Z"/>
+    <path d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972Z"/>
+    <path d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972Z"/>
+    <path d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972Z"/>
+  </symbol>
 </svg>
-
-    <!-- header -->
-    <%- include('header', {user: user}) -%>
 
 
 <main>
   <h1 class="visually-hidden">Dashboard</h1>
 
+  <!-- Username, Password and Profile -->
   <div class="container px-4 py-4">
     <h2 class="pb-2 border-bottom">Dashboard</h2>
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
@@ -222,13 +230,158 @@
           <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profile-modal">My profile</a>
         </div>
       </div>
-
     </div>
   </div>
+
+  <div class="container">
+    <div class="border-bottom mx-4"></div>
+  </div>
+
+  <!-- Add Book, Modify Book -->
+  <div class="container px-4 py-4">
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <svg class="bi" width="1em" height="1em"><use xlink:href="#add"/></svg>
+        </div>
+        <div>
+          <h3 class="fs-2 text-body-emphasis">Add Book</h3>
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-book">Start</a>
+        </div>
+      </div>
+      <!-- <div class="col d-flex align-items-start">
+        <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <svg class="bi" width="1em" height="1em"><use xlink:href="#modify"/></svg>
+        </div>
+        <div>
+          <h3 class="fs-2 text-body-emphasis">Modify Book</h3>
+          <a href="#" class="btn btn-primary">Start</a>
+        </div>
+      </div> -->
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <svg class="bi" width="1em" height="1em"><use xlink:href="#face"/></svg>
+        </div>
+        <div>
+          <h3 class="fs-2 text-body-emphasis">Loan Requests</h3>
+          <a href="/libop-view-req" class="btn btn-primary">Requests</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Queries -->
+  <div class="b-example-divider"></div>
+
+  <div class="container px-4 py-4">
+    <h2 class="pb-2 border-bottom">Manage...</h2>
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+      <div class="col d-flex align-items-center"> <!-- Column 1 -->
+        <div class="d-flex flex-column align-items-center">
+          <h3 class="fs-2 text-body-emphasis">View loans that are late</h3>
+          <form action="/libop-late-fname" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">First Name</span>
+              <input type="text" class="form-control" name="fname">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/libop-late-lname" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Last Name</span>
+              <input type="text" class="form-control" name="lname">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/libop-late-days" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Days</span>
+              <input type="number" class="form-control" name="days">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/libop-late" method="POST">
+            <input class="btn btn-primary" type="submit" value="Search for all books">
+          </form>
+        </div>
+      </div>
+
+      <div class="col d-flex align-items-start"> <!-- Column 2 -->
+        <div class="d-flex flex-column align-items-center">
+          <h3 class="fs-2 text-body-emphasis text-center">View average ratings per borrower</h3>
+          <form action="/libop-avg-user-name" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Name</span>
+              <input type="text" class="form-control" name="name">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/libop-avg-user" method="POST">
+            <input class="btn btn-primary" type="submit" value="Search for all borrowers">
+          </form>
+        </div>
+      </div>
+
+      <div class="col d-flex align-items-start"> <!-- Column 3 -->
+        <div class="d-flex flex-column align-items-center">
+          <h3 class="fs-2 text-body-emphasis text-center">View average ratings per category</h3>
+          <form action="/libop-avg-cat-name" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Category</span>
+              <select class="form-select" name="category">
+                <option>Action and Adventure</option>
+                <option>Art</option>
+                <option>Biography</option>
+                <option>Business and Economics</option>
+                <option>Comics and Graphic Novels</option>
+                <option>Computing and Technology</option>
+                <option>Cookbooks and Food</option>
+                <option>Crafts and Hobbies</option>
+                <option>Crime and Mystery</option>
+                <option>Drama</option>
+                <option>Education and Teaching</option>
+                <option>Fantasy</option>
+                <option>Fiction</option>
+                <option>Health and Wellness</option>
+                <option>Historical Fiction</option>
+                <option>History</option>
+                <option>Horror</option>
+                <option>Humor</option>
+                <option>Inspirational and Motivational</option>
+                <option>LGBTQ+</option>
+                <option>Literary Fiction</option>
+                <option>Music</option>
+                <option>Parenting and Family</option>
+                <option>Philosophy</option>
+                <option>Poetry</option>
+                <option>Politics and Social Sciences</option>
+                <option>Religion and Spirituality</option>
+                <option>Romance</option>
+                <option>Science</option>
+                <option>Science Fiction</option>
+                <option>Self-Help and Personal Development</option>
+                <option>Sports</option>
+                <option>Thriller</option>
+                <option>Travel</option>
+                <option>True Crime</option>
+                <option>Western</option>
+              </select>
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/libop-avg-cat" method="POST">
+            <input class="btn btn-primary" type="submit" value="Search for all categories">
+          </form>
+        </div>
+      </div>
+
 </main>
 
 <!-- Modals -->
-<div class="modal fade" id="pswd-change" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="pswd-change" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -248,7 +401,14 @@
           <script>
             function pswd_send() {
               const form = document.getElementById('pswd-form');
-              form.submit();
+              const input = form.querySelector('input');
+  
+              if (input.value === '') {
+                alert('Please fill in the field'); 
+                return;
+              } else {
+                 form.submit();
+              }
             }
           </script>
         </div>
@@ -260,7 +420,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5">View your profile data</h1>
+          <h1 class="modal-title fs-5">Change your username</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -276,7 +436,14 @@
           <script>
             function user_send() {
               const form = document.getElementById('user-form');
-              form.submit();
+              const input = form.querySelector('input');
+  
+              if (input.value === '') {
+                alert('Please fill in the field'); 
+                return;
+              } else {
+                 form.submit();
+              }
             }
           </script>
         </div>
@@ -312,10 +479,10 @@
                   </div>
                 </li>
                 <li class="d-flex gap-4">
-                  <div>
-                    <h5 class="mb-0">School</h5>
-                    <%=school%>
-                  </div>
+                    <div>
+                      <h5 class="mb-0">School</h5>
+                      <%=school%>
+                    </div>
                 </li>
                 <li class="d-flex gap-4">
                     <div>
@@ -323,10 +490,140 @@
                       <%=user.type%>
                     </div>
                   </li>
-            </ul> 
+            </ul>
         </div>
         <div class="modal-footer">
-          
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="add-book" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Register a book</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="book-form" action="/libop-add-book" method="POST" enctype="multipart/form-data">
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control rounded-3 required" name="title" placeholder="Title" required>
+              <label for="title">Title</label>
+            </div>
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control rounded-3 required" name="publisher" placeholder="Publisher" required>
+              <label for="publisher">Publisher</label>
+            </div>
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control rounded-3 required" name="authors" placeholder="Authors" required>
+              <label for="authors">Author(s) (comma-seperated)</label>
+            </div>
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control rounded-3 required" name="isbn" placeholder="ISBN" required>
+              <label for="isbn">ISBN (13 digits)</label>
+            </div>
+            <div class="d-flex"> <!-- Pages and copies -->
+              <div class="form-floating mb-3 me-2">
+                <input type="number" min="0" class="form-control rounded-3 required" name="pages" placeholder="Pages" required>
+                <label for="pages">Pages</label>
+              </div>
+              <div class="form-floating mb-3 ms-2">
+                <input type="number" min="0" class="form-control rounded-3 required" name="copies" placeholder="Copies available" required>
+                <label for="copies">Copies available</label>
+              </div>
+            </div>
+            <div class="d-flex"> <!-- Language and category -->
+              <div class="form-floating mb-3 me-2" style="width: 50%">
+                <select class="form-control rounded-3" name="lang" placeholder="Language" required>
+                  <option>Greek</option>
+                  <option>English</option>
+                  <option>French</option>
+                  <option>German</option>
+                  <option>Russian</option>
+                  <option>Spanish</option>
+                  <option>Italian</option>
+                  <option>Chinese</option>
+                </select>
+                <label for="lang">Language</label>
+              </div>
+              <div class="form-floating mb-3 ms-2" style="width: 50%">
+                <select class="form-control rounded-3" name="category" placeholder="Category">
+                  <option value="" selected>None</option>
+                  <option>Action and Adventure</option>
+                  <option>Art</option>
+                  <option>Biography</option>
+                  <option>Business and Economics</option>
+                  <option>Comics and Graphic Novels</option>
+                  <option>Computing and Technology</option>
+                  <option>Cookbooks and Food</option>
+                  <option>Crafts and Hobbies</option>
+                  <option>Crime and Mystery</option>
+                  <option>Drama</option>
+                  <option>Education and Teaching</option>
+                  <option>Fantasy</option>
+                  <option>Fiction</option>
+                  <option>Health and Wadmin-young-teachersellness</option>
+                  <option>Historical Fiction</option>
+                  <option>History</option>
+                  <option>Horror</option>
+                  <option>Humor</option>
+                  <option>Inspirational and Motivational</option>
+                  <option>LGBTQ+</option>
+                  <option>Literary Fiction</option>
+                  <option>Music</option>
+                  <option>Parenting and Family</option>
+                  <option>Philosophy</option>
+                  <option>Poetry</option>
+                  <option>Politics and Social Sciences</option>
+                  <option>Religion and Spirituality</option>
+                  <option>Romance</option>
+                  <option>Science</option>
+                  <option>Science Fiction</option>
+                  <option>Self-Help and Personal Development</option>
+                  <option>Sports</option>
+                  <option>Thriller</option>
+                  <option>Travel</option>
+                  <option>True Crime</option>
+                  <option>Western</option>
+                </select>
+                <label for="category">Category (optional)</label>
+              </div>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control rounded-3" name="keywords" placeholder="Keywords">
+              <label for="keywords">Keyword(s) (comma-seperated) (optional)</label>
+            </div>
+            <div class="form-floating mb-3">
+              <textarea class="form-control rounded-3" maxlength="1000" name="summary" placeholder="Summary"></textarea>
+              <label for="summary">Summary (max. 1000 char.) (optional)</label>
+            </div> 
+            <div class="input-group mb-3">
+              <span class="input-group-text me-2 rounded-3">Cover (optional)</span>
+              <input type="file" class="form-control rounded-3" name="image" placeholder="Cover" accept="image/jpeg">
+            </div>
+          </form> 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="add_book()">Submit</button>
+          <script>
+            function add_book() {
+              const form = document.getElementById('book-form');
+              const inputs = form.getElementsByClassName("required");
+
+              let isEmpty = false;
+              for (input of inputs) { 
+                if (input.value === '') {
+                  alert('Please fill in all mandatory fields'); 
+                  return;
+                }
+              }
+
+              form.submit();
+            }
+          </script>
         </div>
       </div>
     </div>

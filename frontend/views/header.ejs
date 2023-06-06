@@ -10,13 +10,13 @@
   
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><a href="/" class="nav-link px-2">Home</a></li>
-        <li><a href="/books" class="nav-link px-2 link-secondary">Books</a></li>
+        <li><a href="/dashboard" class="nav-link px-2">Dashboard</a></li>
+        <li><a href="/books" class="nav-link px-2">Books</a></li>
       </ul>
   
       <% if (user) { %>
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center fw-light text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <!-- <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2"> -->
             <strong><%= user.username %></strong>
           </a>
           <ul class="dropdown-menu dropdown-menu-dark text-small shadow">

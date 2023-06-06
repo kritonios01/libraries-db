@@ -165,12 +165,18 @@
 
 <!-- Main Content -->
 <main>
-
   <section class="py-1 text-center container">
     <div class="row py-lg-3">
-      <div class="col-lg-6 col-md-8 mx-auto">
+      <div class="col-xxl-8 col-lg-6 mx-auto">
         <h1 class="fw-light">Books in the Library</h1>
         <p class="lead text-body-secondary">Here you can see all the books which are available in your school library. Feel free to check them out!</p>
+      </div>
+      <div class="col-xxl-4 col-lg-6 mx-auto">
+        <button class="btn btn-info mt-3" type="button" data-bs-toggle="modal" data-bs-target="#book-search">Search
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+          </svg>
+        </button>
       </div>
     </div>
   </section>
@@ -189,7 +195,9 @@
                 <p class="card-text"><%=books[i].Summary%></p>
                 <div class="d-flex justify-content-between align-items-center">
                   <small class="text-body-secondary"><%=books[i].Copies%> available</small>
-                  <button type="button" class="btn btn-primary">Rent</button>
+                  <% if(user.type === 'Student' || user.type === 'Teacher' || user.type === 'Director') { %>
+                    <button type="button" class="btn btn-primary" bookid="<%=books[i].Book_id%>" onclick="rentBook(this)">Rent</button>
+                  <% } %>
                 </div>
               </div>
               <div class="card-footer">
@@ -215,6 +223,122 @@
   </div>
 <!-- menei na fainontai kai ratings-reviews -->
 </main>
+
+
+<!-- js to handle rent request -->
+<script>
+
+  async function rentBook(button) {
+    const data = { Book_id: button.getAttribute('bookid') };
+    
+    const res = await fetch('/student-rent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'text/html' },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) { //handle color modes
+      const html = await res.text();
+      document.documentElement.innerHTML = html;
+
+      // const parser = new DOMParser();
+      // const parsedHTML = parser.parseFromString(html, 'text/html');
+
+      // const scripts = parsedHTML.querySelectorAll('script');
+      // scripts.forEach((script) => {
+      //   const newScript = document.createElement('script');
+      //   newScript.innerHTML = script.innerHTML;
+      //   document.body.appendChild(newScript);
+      // });
+    } else {
+      console.error('Error:', response.status);
+    }
+  }
+</script>
+
+
+<!-- Modals -->
+  <div class="modal fade" id="book-search" tabindex="-1" aria-hidden="true"> <!-- Book Search -->
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Search by...</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/books-search-title" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Title</span>
+              <input type="text" class="form-control" name="title">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/books-search-category" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Category</span>
+              <select class="form-select" name="category">
+                <option>Action and Adventure</option>
+                <option>Art</option>
+                <option>Biography</option>
+                <option>Business and Economics</option>
+                <option>Comics and Graphic Novels</option>
+                <option>Computing and Technology</option>
+                <option>Cookbooks and Food</option>
+                <option>Crafts and Hobbies</option>
+                <option>Crime and Mystery</option>
+                <option>Drama</option>
+                <option>Education and Teaching</option>
+                <option>Fantasy</option>
+                <option>Fiction</option>
+                <option>Health and Wadmin-young-teachersellness</option>
+                <option>Historical Fiction</option>
+                <option>History</option>
+                <option>Horror</option>
+                <option>Humor</option>
+                <option>Inspirational and Motivational</option>
+                <option>LGBTQ+</option>
+                <option>Literary Fiction</option>
+                <option>Music</option>
+                <option>Parenting and Family</option>
+                <option>Philosophy</option>
+                <option>Poetry</option>
+                <option>Politics and Social Sciences</option>
+                <option>Religion and Spirituality</option>
+                <option>Romance</option>
+                <option>Science</option>
+                <option>Science Fiction</option>
+                <option>Self-Help and Personal Development</option>
+                <option>Sports</option>
+                <option>Thriller</option>
+                <option>Travel</option>
+                <option>True Crime</option>
+                <option>Western</option>
+              </select>
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/books-search-author" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Author</span>
+              <input type="text" class="form-control" name="author">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+          <form action="/books-search-copies" method="POST">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Copies</span>
+              <input type="number" min="0" class="form-control" name="copies">
+              <input type="submit" class="btn btn-outline-secondary" value="Go!">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
 
 
   <!-- Footer -->

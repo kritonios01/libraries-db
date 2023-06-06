@@ -200,7 +200,7 @@
 
 
 <main>
-  <h1 class="visually-hidden">Bashboard</h1>
+  <h1 class="visually-hidden">Dashboard</h1>
 
   <!-- Username, Password and Profile -->
   <div class="container px-4 py-4">
@@ -250,7 +250,7 @@
           <a href="/dbbackup" class="btn btn-primary">Create Backup</a>
         </div>
       </div>
-      <div class="col d-flex align-items-start">
+      <!-- <div class="col d-flex align-items-start">
         <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
           <svg class="bi" width="1em" height="1em"><use xlink:href="#db-up"/></svg>
         </div>
@@ -258,18 +258,18 @@
           <h3 class="fs-2 text-body-emphasis">Database Restore</h3>
           <a href="#" class="btn btn-primary">Upload SQL file</a>
 
-          <!-- <form id="sqlupload" action="/dbrestore" method="POST" style="display: none;">
+          <form id="sqlupload" action="/dbrestore" method="POST" style="display: none;">
 
-          </form> -->
+          </form>
 
-          <!-- <script> //js to send signout post request
+          <script> //js to send signout post request
             function sqlrestore() {
               const form = document.getElementById('sqlupload');
               form.submit();
             }
-          </script> -->
+          </script>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -286,10 +286,10 @@
         </div>
         <div>
           <h3 class="fs-2 text-body-emphasis">Add School</h3>
-          <a href="#" class="btn btn-primary">Start</a>
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-school">Start</a>
         </div>
       </div>
-      <div class="col d-flex align-items-start">
+      <!-- <div class="col d-flex align-items-start">
         <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
           <svg class="bi" width="1em" height="1em"><use xlink:href="#modify"/></svg>
         </div>
@@ -297,8 +297,8 @@
           <h3 class="fs-2 text-body-emphasis">Modify School</h3>
           <a href="#" class="btn btn-primary">Start</a>
         </div>
-      </div>
-      <div class="col d-flex align-items-start">
+      </div> -->
+      <!-- <div class="col d-flex align-items-start">
         <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
           <svg class="bi" width="1em" height="1em"><use xlink:href="#face"/></svg>
         </div>
@@ -306,7 +306,7 @@
           <h3 class="fs-2 text-body-emphasis">Library Operators</h3>
           <a href="#" class="btn btn-primary">Requests</a>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -501,7 +501,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form id="pswd-form" action="/password" method="POST">
+            <form id="pswd-form" action="/password-change" method="POST">
                 <div class="form-floating mb-3">
                   <input type="password" class="form-control rounded-3" id="password" name="password" placeholder="New Password" required>
                   <label for="password">New Password</label>
@@ -513,7 +513,14 @@
           <script>
             function pswd_send() {
               const form = document.getElementById('pswd-form');
-              form.submit();
+              const input = form.querySelector('input');
+  
+              if (input.value === '') {
+                alert('Please fill in the field'); 
+                return;
+              } else {
+                 form.submit();
+              }
             }
           </script>
         </div>
@@ -525,11 +532,11 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5">View your profile data</h1>
+          <h1 class="modal-title fs-5">Change your username</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form id="user-form" action="/user-data" method="POST">
+            <form id="user-form" action="/username-change" method="POST">
                 <div class="form-floating mb-3">
                   <input type="text" class="form-control rounded-3" id="username" name="username" placeholder="New username" required>
                   <label for="username">New username</label>
@@ -541,7 +548,14 @@
           <script>
             function user_send() {
               const form = document.getElementById('user-form');
-              form.submit();
+              const input = form.querySelector('input');
+  
+              if (input.value === '') {
+                alert('Please fill in the field'); 
+                return;
+              } else {
+                 form.submit();
+              }
             }
           </script>
         </div>
@@ -586,6 +600,64 @@
         </div>
         <div class="modal-footer">
 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="add-school" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Register a new school</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="school-form" action="/admin-add-school" method="POST">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control rounded-3" name="name" placeholder="Name" required>
+                  <label for="name">Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control rounded-3" name="address" placeholder="Address" required>
+                  <label for="address">Address</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control rounded-3" name="city" placeholder="City" required>
+                  <label for="city">City</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control rounded-3" name="phone" placeholder="Phone" required>
+                  <label for="phone">Phone</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control rounded-3" name="mail" placeholder="Mail" required>
+                  <label for="mail">Mail</label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="add_school()">Save changes</button>
+          <script>
+            function add_school() {
+              const form = document.getElementById('school-form');
+              const inputs = form.getElementsByTagName('input');
+  
+              let isEmpty = false;
+              for (input of inputs) { 
+                if (input.value === '') {
+                  isEmpty = true; 
+                  break; 
+                }
+              }
+              if (isEmpty) {
+                alert('Please fill in all the fields'); 
+                return;
+              }
+
+              form.submit();
+            }
+          </script>
         </div>
       </div>
     </div>
