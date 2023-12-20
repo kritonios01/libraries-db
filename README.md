@@ -34,5 +34,5 @@ School of Electrical and Computer Engineering, NTUA
 4. Run the following scripts in your shell:
 	```shell
 	$ mariadb -u root libraries < script.sql
- $ mariadb -u root libraries < insert_data.sql
+   $ mariadb -u root libraries < insert_data.sql
 	```
